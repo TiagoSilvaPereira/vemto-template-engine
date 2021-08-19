@@ -33,3 +33,12 @@ test('renders a simple template', () => {
     expect(result.includes(`<% } %>`)).toBe(false)
     expect(result.includes(`Some other thing`)).toBe(false)
 })
+
+test('it shows the correct template error position', () => {
+
+    let data = {};
+
+    let template = `Hi, I'm <$ this.user.name $>`;
+
+    let result = new SilverB(template).compile(data);
+})

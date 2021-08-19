@@ -60,6 +60,8 @@ class Template {
 
     compile(data) {
         this.generateCode();
+
+        console.log(this.generatedCode)
         
         return new Function(this.generatedCode).apply(data);
     }
