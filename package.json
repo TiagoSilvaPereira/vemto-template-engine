@@ -1,6 +1,6 @@
 {
   "name": "silverb",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "SilverB",
   "main": "index.js",
   "scripts": {
@@ -11,10 +11,7 @@
     "url": "git+https://github.com/pwc-code-generator/silverb-template-engine.git"
   },
   "keywords": [
-    "template",
-    "engine",
-    "code",
-    "text"
+    "silverb"
   ],
   "author": "Tiago Silva Pereira Rodrigues",
   "license": "MIT",
