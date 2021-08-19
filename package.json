@@ -1,7 +1,7 @@
 {
   "name": "silverb",
-  "version": "0.0.9",
-  "description": "SilverB Code and Text Template Engine",
+  "version": "0.1.1",
+  "description": "SilverB",
   "main": "index.js",
   "scripts": {
     "test": "jest"
