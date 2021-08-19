@@ -6,6 +6,17 @@ SilverB is a template engine, but made for code and text generation and to be us
 
 SilverB can be used for any dynamic text generation and accepts all Javascript syntaxes inside your special tags.
 
+## License
+
+SilverB is dual-license:
+
+- FREE for non-commercial use
+- PAID for commercial use
+
+Please see the [License File](LICENSE.md) and e-mail me at <contact@vemto.app> if you want to buy a license for commercial usage. 
+
+You can see the prices for commercial usage [here](prices.md).
+
 ## Installation
 
 To use SilverB in your own project, install it using npm:
@@ -144,9 +155,12 @@ Something here...
 
 ## Syntax Highlighter
 
-We have a simple SilverB Syntax Highlighter for VSCode [here](https://github.com/TiagoSilvaPereira/silverb_syntax_vscode). If you want, you can create a syntax highlighter for your preferred editor and add on this Readme.
+SilverB has a simple Syntax Highlighter for VSCode [here](https://github.com/TiagoSilvaPereira/silverb_syntax_vscode). If you want, you can create a syntax highlighter for your preferred editor and add on this Readme.
 
 The syntax highlighter will work on files with **.silverb** extension.
 
-## License
-MIT
+## Prices for Commercial Usage
+
+- Up to 1M generated lines - **$799 yearly**
+- Up to 10M generated lines - **$999 yearly**
+- Unlimited generated lines - **$1199 yearly**
