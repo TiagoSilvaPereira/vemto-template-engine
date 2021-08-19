@@ -41,4 +41,5 @@ test('it shows the correct template error position', () => {
     let template = `Hi, I'm <$ this.user.name $>`;
 
     let result = new SilverB(template).compile(data);
+    
 })
