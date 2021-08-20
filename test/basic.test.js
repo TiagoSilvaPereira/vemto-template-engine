@@ -75,6 +75,8 @@ test('it shows the correct template error positions with a more complex scenario
     Try to throw the error here: 
     <% if(this.name) { %><$ this.user.name $><% } %>
 
+    Showing the name again: <$ this.name $>
+
     `;
 
     let compiler = new SilverB(template);
@@ -84,7 +86,5 @@ test('it shows the correct template error positions with a more complex scenario
 
     let latestError = compiler.getLatestError()
     
-    // console.log(latestError)
-
-    // expect(latestError.templateLine).toBe(12)
+    expect(latestError.templateLine).toBe(12)
 })

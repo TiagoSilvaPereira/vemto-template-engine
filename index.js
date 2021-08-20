@@ -71,7 +71,6 @@ class Template {
             this.compile(data);
         } catch (error) {
             this.setLatestError(error);
-            this.getPreCompiledCode()
 
             throw error;
         }
@@ -85,7 +84,7 @@ class Template {
 
     getPreCompiledCode() {
         let generatedCode = this.getGeneratedCode()
-        console.log(generatedCode)
+        
         return new Function(generatedCode).toString()
     }
 
@@ -112,11 +111,11 @@ class Template {
     }
 
     getTemplateLineFromCodeLine(codeLine) {
+        if(!codeLine) return 0
+
         let codeLines = this.generatedCode.split('\n'),
             code = codeLines[codeLine - 1],
             templateLine = code.replace(/(codeBlocks)(.*)(TEMPLATE_LINE:)/, '')
-
-        console.log('Template Line', templateLine)
 
         return templateLine || 0
     }
@@ -166,16 +165,17 @@ class Template {
     separateTextFromCodeBlocks() {
         let matchBlocks = new RegExp(this.settings.blocksMatch, "g"),
             cursor = 0,
-            match;
+            match,
+            matchesOcurrences = {};
 
         // While we find matches of the special code blocks (<$ $>, <up up>, etc)
         // When it match something, it returns the matches for all block types, as
         // it uses a composed regex (regex|regex|regex), so the result would be
         // something like: 
         //
-        // - ['<$ foo $>', null, '<$ foo $>', null] or
+        // - ['<$ foo $>', undefined, ' foo ', undefined] or
         //
-        // - ['<up foo up>', null, null, '<up foo up>']
+        // - ['<up foo up>', undefined, undefined, ' foo ']
         //
         //  
         while(match = matchBlocks.exec(this.intermediateTemplate)) {
@@ -184,15 +184,24 @@ class Template {
             let contentBeforeNextBlock = this.intermediateTemplate.slice(cursor, match.index);
             this.addTextBlock(contentBeforeNextBlock);
 
-            let templateLineNumber = this.getLineNumberForIndex(match.index)
+            // Saves the quantity of ocurrences of the same block appeared in the template
+            matchesOcurrences[match[0]] = !matchesOcurrences[match[0]] ? 1 : matchesOcurrences[match[0]] + 1; 
+
+            let matchPositionOnOriginalTemplate = this.getStringOcurrenceIndexByOrder(
+                this.template, 
+                match[0], 
+                matchesOcurrences[match[0]]
+            )
+
+            let templateLineNumber = this.getLineNumberForIndex(matchPositionOnOriginalTemplate)
 
             // Add the correct javascript blocks considering the
             // regex matches
-            this.addAvailableJavascriptBlocks(match, templateLineNumber);
+            this.addJavaScriptBlock(match, templateLineNumber);
 
             // Put the cursor in the end of all javascript blocks
             // It uses the position 0, as it is the primary result
-            // of the regex, Ex: ['<$ foo $>', null, '<$ foo $>', null]
+            // of the regex, Ex: ['<$ foo $>', undefined, ' foo ', undefined]
             cursor = match.index + match[0].length;
         }
 
@@ -201,12 +210,12 @@ class Template {
         this.addTextBlock(finalContent);
     }
 
-    addAvailableJavascriptBlocks(templateMatch, lineNumber) {
-        for (const [index,block] of Object.entries(this.settings.blocks)) {
+    addJavaScriptBlock(templateMatch, lineNumber) {
+        for (const [index, block] of Object.entries(this.settings.blocks)) {
 
             // It needs to use the block index because the regex is composed (regex|regex|regex),
             // so it can return null values in some options, but valid options on other. For
-            // example: [null, '<$ something $>', null]
+            // example: [null, ' something ', null]
             if(templateMatch[block.index]) {
                 this.addTextBlock(templateMatch[block.index], true, block.type, lineNumber);
             }
@@ -253,17 +262,31 @@ class Template {
     }
 
     getLineNumberForIndex(index) {
-        console.log(this.template)
-        
         let perLine = this.template.split('\n'),
-            total_length = 0,
+            totalLength = 0,
             i = 0;
 
         for (i = 0; i < perLine.length; i++) {
-            total_length += perLine[i].length;
-            if (total_length >= index)
+
+            // Needs to sum with 1 because it removes the \n charactere
+            totalLength += perLine[i].length + 1;
+            
+            if (totalLength >= index)
                 return i + 1;
+
         }
+    }
+
+    getStringOcurrenceIndexByOrder(string, subString, order) {
+        var stringLength = string.length, 
+            i = -1;
+        
+        while(order-- && i++ < stringLength){
+            i = string.indexOf(subString, i);
+            if (i < 0) break;
+        }
+
+        return i;
     }
 
     finishGeneratedCode() {
