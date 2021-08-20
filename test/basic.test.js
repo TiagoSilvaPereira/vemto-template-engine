@@ -38,8 +38,11 @@ test('it shows the correct template error position', () => {
 
     let data = {};
 
-    let template = `Hi, I'm <$ this.user.name $>`;
+    let template = `
+    Hi, I'm <$ this.user.name $>
+    Other Line
+    `;
 
-    let result = new SilverB(template).compile(data);
+    let result = new SilverB(template).compileWithErrorTreatment(data);
     
 })

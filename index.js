@@ -17,16 +17,19 @@ class Template {
             blocksMatch: '',
             blocks: {
                 logic: {
+                    // Used to get the correct position on a composed regex (rgx|rgx|rgx)
                     index: 1,
                     match: '<%(.+?)%>',
                     type: 'LOGIC'
                 },
                 variable: {
+                    // Used to get the correct position on a composed regex (rgx|rgx|rgx)
                     index: 2,
                     match: '<\\$(.+?)\\$>',
                     type: 'VARIABLE'
                 },
                 logicLineUp: {
+                    // Used to get the correct position on a composed regex (rgx|rgx|rgx)
                     index: 3,
                     match: '<up(.+?)up>',
                     type: 'LOGIC'
@@ -58,12 +61,27 @@ class Template {
         this.addHelperFunctions();
     }
 
+    compileWithErrorTreatment(data) {
+        try {
+            this.compile(data)
+        } catch (error) {
+            console.log(this.getErrorLine(error), error)
+        }
+    }
+
     compile(data) {
         this.generateCode();
 
         console.log(this.generatedCode)
         
         return new Function(this.generatedCode).apply(data);
+    }
+
+    getErrorLine(error) {
+        let codeLinesRegex = /(?<=(<anonymous>)(:{1}))([0-9]+)(:{1})([0-9]+)/g,
+            matches = error.stack.match(codeLinesRegex)
+    
+        return matches ? matches[0] : '0:0'
     }
 
     generateCode() {
@@ -113,37 +131,61 @@ class Template {
             cursor = 0,
             match;
 
+        // While we find matches of the special code blocks (<$ $>, <up up>, etc)
+        // When it match something, it returns the matches for all block types, as
+        // it uses a composed regex (regex|regex|regex), so the result would be
+        // something like: 
+        //
+        // - ['<$ foo $>', null, '<$ foo $>', null] or
+        //
+        // - ['<up foo up>', null, null, '<up foo up>']
+        //
+        //  
         while(match = matchBlocks.exec(this.template)) {
+            // Add a whole text block from the latest cursor position
+            // to the start of the special block position
+            let contentBeforeNextBlock = this.template.slice(cursor, match.index);
+            this.addTextBlock(contentBeforeNextBlock);
 
-            this.addTextBlock(this.template.slice(cursor, match.index));
-            this.addAllJavaScriptBlocks(match);
+            let templateLineNumber = this.getLineNumberForIndex(match.index)
 
+            // Add the correct javascript blocks considering the
+            // regex matches
+            this.addAvailableJavascriptBlocks(match, templateLineNumber);
+
+            // Put the cursor in the end of all javascript blocks
+            // It uses the position 0, as it is the primary result
+            // of the regex, Ex: ['<$ foo $>', null, '<$ foo $>', null]
             cursor = match.index + match[0].length;
-            
         }
 
-        this.addTextBlock(this.template.substr(cursor, this.template.length - cursor));
+        let finalContent = this.template.substr(cursor, this.template.length - cursor);
+
+        this.addTextBlock(finalContent);
     }
 
-    addAllJavaScriptBlocks(templateMatch) {
+    addAvailableJavascriptBlocks(templateMatch, lineNumber) {
         for (const [index,block] of Object.entries(this.settings.blocks)) {
+
+            // It needs to use the block index because the regex is composed (regex|regex|regex),
+            // so it can return null values in some options, but valid options on other. For
+            // example: [null, '<$ something $>', null]
             if(templateMatch[block.index]) {
-                this.addTextBlock(templateMatch[block.index], true, block.type);
+                this.addTextBlock(templateMatch[block.index], true, block.type, lineNumber);
             }
         }
     }
 
-    addTextBlock(content, isJavascript = false, type = 'TEXT') {
-        let matchJavascriptCodeLineUp = /(^( (lineup)( )*)(var|let|console|if|for|else|switch|case|break|{|}))(.*)?/g;
-
+    addTextBlock(content, isJavascript = false, type = 'TEXT', lineNumber = 0) {
         if(type == 'TEXT') {
             content = this.convertTextSpecialCharacters(content);
         }
 
         let textBlock = {
-            content: content,
-            isJavascript: isJavascript,
-            type: type
+            content,
+            isJavascript,
+            type,
+            lineNumber
         };
 
         this.textBlocks.push(textBlock);
@@ -151,7 +193,9 @@ class Template {
 
     addLine(block) {
         if(block.isJavascript) {
-            this.generatedCode += (block.type === 'LOGIC') ? block.content + '\n' : 'codeBlocks.push(' + block.content + ');\n';
+            this.generatedCode += (block.type === 'LOGIC') 
+                ? block.content + ` // TEMPLATE_LINE: ${block.lineNumber}\n` 
+                : `codeBlocks.push(` + block.content + `); // TEMPLATE_LINE: ${block.lineNumber}\n`;
         } else {
             this.generatedCode += 'codeBlocks.push("' + this.convertLineCharacters(block.content) + '");\n';
         }
@@ -169,6 +213,18 @@ class Template {
                 .replace(/\r/g, '\\r');
 
         return line;
+    }
+
+    getLineNumberForIndex(index) {
+        let perLine = this.template.split('\n'),
+            total_length = 0,
+            i = 0;
+
+        for (i = 0; i < perLine.length; i++) {
+            total_length += perLine[i].length;
+            if (total_length >= index)
+                return i + 1;
+        }
     }
 
     finishGeneratedCode() {
