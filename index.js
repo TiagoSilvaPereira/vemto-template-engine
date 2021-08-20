@@ -6,8 +6,12 @@ const
 class Template {
 
     constructor(template, name = 'UNKNOWN') {
-        this.template = template;
         this.name = name;
+        this.latestError = null;
+
+        this.template = template;
+        this.intermediateTemplate = template;
+
         this.initSettings();
         this.resetTemplate();
     }
@@ -55,6 +59,7 @@ class Template {
 
     resetTemplate() {
         this.textBlocks = [];
+        this.latestError = null;
         this.generatedCode = 'var codeBlocks = [];\n';
         this.actualLineIsLogic = false;
         this.previousLineIsLogic = false;
@@ -63,25 +68,57 @@ class Template {
 
     compileWithErrorTreatment(data) {
         try {
-            this.compile(data)
+            this.compile(data);
         } catch (error) {
-            console.log(this.getErrorLine(error), error)
+            this.setLatestError(error);
+            this.getPreCompiledCode()
+
+            throw error;
         }
     }
 
     compile(data) {
         this.generateCode();
 
-        console.log(this.generatedCode)
-        
         return new Function(this.generatedCode).apply(data);
+    }
+
+    getPreCompiledCode() {
+        let generatedCode = this.getGeneratedCode()
+        console.log(generatedCode)
+        return new Function(generatedCode).toString()
+    }
+
+    setLatestError(error) {
+        let codeLine = this.getErrorLine(error),
+            templateLine = this.getTemplateLineFromCodeLine(codeLine)
+
+        this.latestError = {
+            error,
+            codeLine: parseInt(codeLine, 10),
+            templateLine: parseInt(templateLine, 10)
+        }
+    }
+
+    getLatestError() {
+        return this.latestError
     }
 
     getErrorLine(error) {
         let codeLinesRegex = /(?<=(<anonymous>)(:{1}))([0-9]+)(:{1})([0-9]+)/g,
             matches = error.stack.match(codeLinesRegex)
     
-        return matches ? matches[0] : '0:0'
+        return matches ? matches[0].split(':')[0] : 0
+    }
+
+    getTemplateLineFromCodeLine(codeLine) {
+        let codeLines = this.generatedCode.split('\n'),
+            code = codeLines[codeLine - 1],
+            templateLine = code.replace(/(codeBlocks)(.*)(TEMPLATE_LINE:)/, '')
+
+        console.log('Template Line', templateLine)
+
+        return templateLine || 0
     }
 
     generateCode() {
@@ -116,14 +153,14 @@ class Template {
 
     treatTemplateCode() {
         // Remove comments
-        this.template = this.template.replace(/(\r\n|\n|\r|\u2028|\u2029)?(\t| )*(<#)(.*)(#>)/g, '');
+        this.intermediateTemplate = this.intermediateTemplate.replace(/(\r\n|\n|\r|\u2028|\u2029)?(\t| )*(<#)(.*)(#>)/g, '');
 
         // Remove breaklines from logic blocks
-        this.template = this.template.replace(/(\r\n|\n|\r|\u2028|\u2029){1}(\t| )*(<%)/g, '<%');
-        this.template = this.template.replace(/(\r\n|\n|\r||\u2028|\u2029){1}(\t| )*(<up)/g, '<up');
+        this.intermediateTemplate = this.intermediateTemplate.replace(/(\r\n|\n|\r|\u2028|\u2029){1}(\t| )*(<%)/g, '<%');
+        this.intermediateTemplate = this.intermediateTemplate.replace(/(\r\n|\n|\r||\u2028|\u2029){1}(\t| )*(<up)/g, '<up');
 
         // Remove spaces and breaklines after lineup logic block
-        this.template = this.template.replace(/(up>)(\r\n|\n|\r|\u2028|\u2029){1}(\t| )*/g, 'up>');
+        this.intermediateTemplate = this.intermediateTemplate.replace(/(up>)(\r\n|\n|\r|\u2028|\u2029){1}(\t| )*/g, 'up>');
     }
 
     separateTextFromCodeBlocks() {
@@ -141,10 +178,10 @@ class Template {
         // - ['<up foo up>', null, null, '<up foo up>']
         //
         //  
-        while(match = matchBlocks.exec(this.template)) {
+        while(match = matchBlocks.exec(this.intermediateTemplate)) {
             // Add a whole text block from the latest cursor position
             // to the start of the special block position
-            let contentBeforeNextBlock = this.template.slice(cursor, match.index);
+            let contentBeforeNextBlock = this.intermediateTemplate.slice(cursor, match.index);
             this.addTextBlock(contentBeforeNextBlock);
 
             let templateLineNumber = this.getLineNumberForIndex(match.index)
@@ -159,7 +196,7 @@ class Template {
             cursor = match.index + match[0].length;
         }
 
-        let finalContent = this.template.substr(cursor, this.template.length - cursor);
+        let finalContent = this.intermediateTemplate.substr(cursor, this.intermediateTemplate.length - cursor);
 
         this.addTextBlock(finalContent);
     }
@@ -194,8 +231,8 @@ class Template {
     addLine(block) {
         if(block.isJavascript) {
             this.generatedCode += (block.type === 'LOGIC') 
-                ? block.content + ` // TEMPLATE_LINE: ${block.lineNumber}\n` 
-                : `codeBlocks.push(` + block.content + `); // TEMPLATE_LINE: ${block.lineNumber}\n`;
+                ? block.content + ` // TEMPLATE_LINE:${block.lineNumber}\n` 
+                : `codeBlocks.push(` + block.content + `); // TEMPLATE_LINE:${block.lineNumber}\n`;
         } else {
             this.generatedCode += 'codeBlocks.push("' + this.convertLineCharacters(block.content) + '");\n';
         }
@@ -216,6 +253,8 @@ class Template {
     }
 
     getLineNumberForIndex(index) {
+        console.log(this.template)
+        
         let perLine = this.template.split('\n'),
             total_length = 0,
             i = 0;

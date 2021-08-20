@@ -43,6 +43,48 @@ test('it shows the correct template error position', () => {
     Other Line
     `;
 
-    let result = new SilverB(template).compileWithErrorTreatment(data);
+    let compiler = new SilverB(template);
+
+    expect(() => compiler.compileWithErrorTreatment(data)).toThrow();
+
+    let latestError = compiler.getLatestError()
+
+    expect(latestError.codeLine).toBe(7)
+    expect(latestError.templateLine).toBe(2)
+})
+
+test('it shows the correct template error positions with a more complex scenario', () => {
+
+    let data = {
+        name: 'Tiago Silva Pereira Rodrigues',
+        projects: [
+            'PWC', 'SilverB', 'Rapid Mockup', 'Stop It'
+        ]
+    };
+
+    let template = `
+    Hi, I'm <$ this.name $>.
+
+    I created these projects:
+
+    <# It is a comment #>
+    <% for (let project of this.projects) { %>
+        - <$ project $>
+    <% } %>
+
+    Try to throw the error here: 
+    <% if(this.name) { %><$ this.user.name $><% } %>
+
+    `;
+
+    let compiler = new SilverB(template);
     
+    expect(() => compiler.compileWithErrorTreatment(data))
+        .toThrow(`Cannot read property 'name' of undefined`);
+
+    let latestError = compiler.getLatestError()
+    
+    // console.log(latestError)
+
+    // expect(latestError.templateLine).toBe(12)
 })
