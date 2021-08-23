@@ -1,11 +1,11 @@
-const SilverB = require('silverb')
+const VET = require('../index')
 
 test('renders a simple template', () => {
 
     let data = {
         name: 'Tiago Silva Pereira Rodrigues',
         projects: [
-            'PWC', 'SilverB', 'Rapid Mockup', 'Stop It'
+            'PWC', 'VET', 'Rapid Mockup', 'Stop It'
         ]
     };
 
@@ -20,11 +20,11 @@ test('renders a simple template', () => {
     <% } %>
     `;
 
-    let result = new SilverB(template).compile(data); 
+    let result = new VET(template).compile(data); 
     
     expect(result.includes(`Hi, I'm Tiago Silva Pereira Rodrigues`)).toBe(true)
     expect(result.includes(`- PWC`)).toBe(true)
-    expect(result.includes(`- SilverB`)).toBe(true)
+    expect(result.includes(`- VET`)).toBe(true)
     expect(result.includes(`- Rapid Mockup`)).toBe(true)
     expect(result.includes(`- Stop It`)).toBe(true)
 
@@ -43,7 +43,7 @@ test('it shows the correct template error position', () => {
     Other Line
     `;
 
-    let compiler = new SilverB(template);
+    let compiler = new VET(template);
 
     expect(() => compiler.compileWithErrorTreatment(data)).toThrow();
 
@@ -58,7 +58,7 @@ test('it shows the correct template error positions with a more complex scenario
     let data = {
         name: 'Tiago Silva Pereira Rodrigues',
         projects: [
-            'PWC', 'SilverB', 'Rapid Mockup', 'Stop It'
+            'PWC', 'VET', 'Rapid Mockup', 'Stop It'
         ]
     };
 
@@ -79,7 +79,7 @@ test('it shows the correct template error positions with a more complex scenario
 
     `;
 
-    let compiler = new SilverB(template);
+    let compiler = new VET(template);
     
     expect(() => compiler.compileWithErrorTreatment(data))
         .toThrow(`Cannot read property 'name' of undefined`);
