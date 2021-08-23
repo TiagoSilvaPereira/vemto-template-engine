@@ -1,6 +1,6 @@
 {
   "name": "@tiago_silva_pereira/vemto-template-engine",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Vemto Template Engine",
   "main": "index.js",
   "scripts": {

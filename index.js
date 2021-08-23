@@ -68,7 +68,7 @@ class Template {
 
     compileWithErrorTreatment(data) {
         try {
-            this.compile(data);
+            return this.compile(data);
         } catch (error) {
             this.setLatestError(error);
 
