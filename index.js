@@ -133,6 +133,11 @@ class Template {
     }
 
     getGeneratedCode() {
+        // If the code was already generated for this section
+        if(this.generatedCode !== 'var codeBlocks = [];\n') {
+            return this.generatedCode;
+        }
+
         this.generateCode();
 
         return this.generatedCode;
