@@ -88,3 +88,25 @@ test('it shows the correct template error positions with a more complex scenario
     
     expect(latestError.templateLine).toBe(12)
 })
+
+test('it shows the correct error positions with a php template', () => {
+    let data = {};
+
+let template = `
+<?php
+<$ this.user.name.status $>
+namespace <$ this.namespace $>;
+
+<% let valuesForCompactReturn = []; %>
+<% let needsRoles = this.generatorSettings.modules.permissions && this.model.isAuthModel() %>
+`;
+
+    let compiler = new VET(template);
+
+    expect(() => compiler.compileWithErrorTreatment(data))
+        .toThrow(`Cannot read property 'name' of undefined`);
+
+    let latestError = compiler.getLatestError()
+
+    expect(latestError.templateLine).toBe(2)
+})

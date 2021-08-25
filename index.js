@@ -5,13 +5,16 @@ const
 
 class Template {
 
-    constructor(template, name = 'UNKNOWN') {
-        this.name = name;
+    constructor(template, options = {}) {
         this.latestError = null;
 
         this.compiled = false;
         this.template = template;
         this.intermediateTemplate = template;
+
+        if(options.logger) {
+            this.logger = options.logger
+        }
 
         this.initSettings();
         this.resetTemplate();
