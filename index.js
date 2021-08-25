@@ -9,6 +9,7 @@ class Template {
         this.name = name;
         this.latestError = null;
 
+        this.compiled = false;
         this.template = template;
         this.intermediateTemplate = template;
 
@@ -79,6 +80,8 @@ class Template {
     compile(data) {
         this.generateCode();
 
+        this.compiled = true;
+
         return new Function(this.generatedCode).apply(data);
     }
 
@@ -133,8 +136,7 @@ class Template {
     }
 
     getGeneratedCode() {
-        // If the code was already generated for this section
-        if(this.generatedCode !== 'var codeBlocks = [];\n') {
+        if(this.compiled) {
             return this.generatedCode;
         }
 
