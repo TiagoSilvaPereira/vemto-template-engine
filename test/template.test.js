@@ -49,7 +49,7 @@ test('it shows the correct template error position', () => {
 
     let latestError = compiler.getLatestError()
 
-    expect(latestError.codeLine).toBe(7)
+    expect(latestError.codeLine).toBe(8)
     expect(latestError.templateLine).toBe(2)
 })
 
@@ -92,8 +92,7 @@ test('it shows the correct template error positions with a more complex scenario
 test('it shows the correct error positions with a php template', () => {
     let data = {};
 
-let template = `
-<?php
+let template = `<?php
 <$ this.user.name.status $>
 namespace <$ this.namespace $>;
 

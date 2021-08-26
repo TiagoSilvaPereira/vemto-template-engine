@@ -9,11 +9,15 @@ class Template {
         this.latestError = null;
 
         this.compiled = false;
+        this.hasGeneratedCode = false;
+
         this.template = template;
         this.intermediateTemplate = template;
 
-        if(options.logger) {
-            this.logger = options.logger
+        this.options = options;
+
+        if(this.options.logger) {
+            this.logger = this.options.logger
         }
 
         this.initSettings();
@@ -64,7 +68,9 @@ class Template {
     resetTemplate() {
         this.textBlocks = [];
         this.latestError = null;
-        this.generatedCode = 'var codeBlocks = [];\n';
+        this.compiled = false;
+        this.hasGeneratedCode = false;
+        this.generatedCode = '"use strict";\nvar codeBlocks = [];\n';
         this.actualLineIsLogic = false;
         this.previousLineIsLogic = false;
         this.addHelperFunctions();
@@ -89,9 +95,15 @@ class Template {
     }
 
     getPreCompiledCode() {
-        let generatedCode = this.getGeneratedCode()
-        
-        return new Function(generatedCode).toString()
+        if(!this.hasGeneratedCode) {
+            this.generateCode();
+        }
+
+        return this.getGeneratedCodeFunctionAsString()
+    }
+
+    getGeneratedCodeFunctionAsString() {
+        return new Function(this.generatedCode).toString()
     }
 
     setLatestError(error) {
@@ -119,9 +131,14 @@ class Template {
     getTemplateLineFromCodeLine(codeLine) {
         if(!codeLine) return 0
 
-        let codeLines = this.generatedCode.split('\n'),
-            code = codeLines[codeLine - 1],
-            templateLine = code.replace(/(codeBlocks)(.*)(TEMPLATE_LINE:)/, '')
+        let generatedCode = this.options.onBrowser 
+            ? this.getGeneratedCodeFunctionAsString() 
+            : this.generatedCode
+            
+        let codeLines = generatedCode.split('\n'),
+            code = codeLines[codeLine - 1]
+
+        let templateLine = code.replace(/(codeBlocks)(.*)(TEMPLATE_LINE:)/, '')
 
         return templateLine || 0
     }
@@ -136,16 +153,8 @@ class Template {
         });
         
         this.finishGeneratedCode();
-    }
 
-    getGeneratedCode() {
-        if(this.compiled) {
-            return this.generatedCode;
-        }
-
-        this.generateCode();
-
-        return this.generatedCode;
+        this.hasGeneratedCode = true;
     }
 
     addHelperFunctions() {
@@ -274,17 +283,20 @@ class Template {
     getLineNumberForIndex(index) {
         let perLine = this.template.split('\n'),
             totalLength = 0,
+            position = index + 1,
             i = 0;
 
         for (i = 0; i < perLine.length; i++) {
 
-            // Needs to sum with 1 because it removes the \n charactere
-            totalLength += perLine[i].length + 1;
+            // Needs to concatenate with the removed \n charactere
+            totalLength += (perLine[i] + '\n').length;
             
-            if (totalLength >= index)
+            if (totalLength >= position)
                 return i + 1;
 
         }
+
+        return 0;
     }
 
     getStringOcurrenceIndexByOrder(string, subString, order) {
