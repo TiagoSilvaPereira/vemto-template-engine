@@ -11,10 +11,10 @@ class Template {
         this.compiled = false;
         this.hasGeneratedCode = false;
 
-        this.template = template;
-        this.intermediateTemplate = template;
-
         this.options = options;
+        this.imports = options.imports || {}
+
+        this.setTemplate(template)
 
         if(this.options.logger) {
             this.logger = this.options.logger
@@ -22,6 +22,31 @@ class Template {
 
         this.initSettings();
         this.resetTemplate();
+    }
+
+    setTemplate(template) {
+        let completeTemplate = this.addImportsToTemplate(template);
+
+        this.template = completeTemplate;
+        this.intermediateTemplate = completeTemplate;
+    }
+
+    addImportsToTemplate(template) {
+        let importsRegex = /(?<=(<import(\s*)template="))(.*)(?=("(\s*)>))/g,
+            codeImports = template.match(importsRegex)
+
+        if(!codeImports) return template
+
+        codeImports.forEach(codeImport => {
+            let importReplacementRegex = new RegExp(`(<import(\\s*)template=")(${codeImport})("(\\s*)>)`, 'g')
+
+            let importContent = this.imports[codeImport]
+            if(!importContent) throw new Error(`Please provide the import ${codeImport} content on the options.imports settings`)
+
+            template = template.replace(importReplacementRegex, importContent)
+        })
+
+        return template
     }
 
     initSettings() {
@@ -58,7 +83,7 @@ class Template {
     setAllBlocksMatching() {
         let matches = [];
 
-        for (const [index,block] of Object.entries(this.settings.blocks)) {
+        for (const [index, block] of Object.entries(this.settings.blocks)) {
             matches.push(block.match);
         }
 
