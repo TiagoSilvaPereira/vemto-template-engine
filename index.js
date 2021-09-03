@@ -47,7 +47,7 @@ class Template {
 
             codeImportContent = this.addImportsToTemplate(codeImportContent)
 
-            codeImportContent = this.addCorrectIdentationToImportContent(template, codeImportContent, codeImportIndex)
+            codeImportContent = this.addCorrectIndentationToImportContent(template, codeImportContent, codeImportIndex)
 
             template = template.replace(importReplacementRegex, codeImportContent)
         })
@@ -70,7 +70,7 @@ class Template {
         return template
     }
 
-    addCorrectIdentationToImportContent(template, codeImportContent, codeImportIndex) {
+    addCorrectIndentationToImportContent(template, codeImportContent, codeImportIndex) {
         let codeImportTemplateIndex = template.indexOf(`<import template[${codeImportIndex}]`),
             codeImportLine = this.getLineNumberForIndex(template, codeImportTemplateIndex),
             templateLines = template.split('\n'),

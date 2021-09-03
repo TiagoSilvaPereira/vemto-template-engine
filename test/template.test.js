@@ -161,7 +161,7 @@ test('it can import other pieces of data', () => {
     expect(result.includes(`<import template="Greetings.vemtl">`)).toBe(false)
 })
 
-test('it import code with correct identation', () => {
+test('it import code with correct indentation', () => {
     let data = {
         name: 'Tiago Rodrigues',
         greetings: 'Happy Coding for You!!',
