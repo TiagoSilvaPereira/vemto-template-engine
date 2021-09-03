@@ -196,3 +196,43 @@ Something
     expect(resultLines[7].search('        ') !== -1).toBe(true)
     expect(resultLines[8].search('        ') !== -1).toBe(true)
 })
+
+test('it allows to import code on sub-templates', () => {
+    let data = {
+        name: 'Tiago Rodrigues',
+        greetings: 'Happy Coding for You!!',
+        hello: 'Hello!!'
+    };
+
+    let otherTemplate = `Other Template. <$ this.hello $>`
+
+    let greetingsTemplate = `
+    <$ this.greetings $>
+    
+    <import template="OtherTemplate.vemtl">
+    `
+
+    let template = `
+    Hi, I'm <$ this.name $>.
+
+    I created these projects:
+    
+    <import template="Greetings.vemtl">
+    `;
+
+    let result = new VET(template, {
+        imports: {
+            'OtherTemplate.vemtl': otherTemplate,
+            'Greetings.vemtl': greetingsTemplate,
+        }
+    }).compile(data);
+
+    expect(result.includes(`Hi, I'm Tiago Rodrigues`)).toBe(true)
+    expect(result.includes(`Happy Coding for You!!`)).toBe(true)
+    expect(result.includes(`Other Template. Hello!!`)).toBe(true)
+
+    expect(result.includes(`<$ this.name $>`)).toBe(false)
+    expect(result.includes(`<$ this.greetings $>`)).toBe(false)
+    expect(result.includes(`<import template="OtherTemplate.vemtl">`)).toBe(false)
+    expect(result.includes(`<import template="Greetings.vemtl">`)).toBe(false)
+})

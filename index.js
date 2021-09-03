@@ -25,12 +25,34 @@ class Template {
     }
 
     setTemplate(template) {
-        let completeTemplate = this.addImportsIndexes(template);
-
-        completeTemplate = this.addImportsToTemplate(completeTemplate);
+        let completeTemplate = this.addImportsToTemplate(template);
 
         this.template = completeTemplate;
         this.intermediateTemplate = completeTemplate;
+    }
+
+    addImportsToTemplate(template) {
+        template = this.addImportsIndexes(template)
+
+        let importsRegex = /(?<=(<import(\s*)template\[\d+\]="))(.*)(?=("(\s*)>))/g,
+            codeImports = template.match(importsRegex)
+
+        if(!codeImports) return template
+
+        codeImports.forEach((codeImport, codeImportIndex) => {
+            let importReplacementRegex = new RegExp(`(<import(\\s*)template\\[${codeImportIndex}\\]=")(${codeImport})("(\\s*)>)`, 'g')
+
+            let codeImportContent = this.imports[codeImport]
+            if(!codeImportContent) throw new Error(`Please provide the import ${codeImport} content on the options.imports settings`)
+
+            codeImportContent = this.addImportsToTemplate(codeImportContent)
+
+            codeImportContent = this.addCorrectIdentationToImportContent(template, codeImportContent, codeImportIndex)
+
+            template = template.replace(importReplacementRegex, codeImportContent)
+        })
+
+        return template
     }
 
     addImportsIndexes(template) {
@@ -43,26 +65,6 @@ class Template {
             let codeImportWithIndex = codeImport.replace('template=', `template[${index}]=`)
 
             template = template.replace(codeImport, codeImportWithIndex)
-        })
-
-        return template
-    }
-
-    addImportsToTemplate(template) {
-        let importsRegex = /(?<=(<import(\s*)template\[\d+\]="))(.*)(?=("(\s*)>))/g,
-            codeImports = template.match(importsRegex)
-
-        if(!codeImports) return template
-
-        codeImports.forEach((codeImport, codeImportIndex) => {
-            let importReplacementRegex = new RegExp(`(<import(\\s*)template\\[${codeImportIndex}\\]=")(${codeImport})("(\\s*)>)`, 'g')
-
-            let codeImportContent = this.imports[codeImport]
-            if(!codeImportContent) throw new Error(`Please provide the import ${codeImport} content on the options.imports settings`)
-
-            codeImportContent = this.addCorrectIdentationToImportContent(template, codeImportContent, codeImportIndex)
-
-            template = template.replace(importReplacementRegex, codeImportContent)
         })
 
         return template
