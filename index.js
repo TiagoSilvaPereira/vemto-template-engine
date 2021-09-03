@@ -25,28 +25,67 @@ class Template {
     }
 
     setTemplate(template) {
-        let completeTemplate = this.addImportsToTemplate(template);
+        let completeTemplate = this.addImportsIndexes(template);
+
+        completeTemplate = this.addImportsToTemplate(completeTemplate);
 
         this.template = completeTemplate;
         this.intermediateTemplate = completeTemplate;
     }
 
+    addImportsIndexes(template) {
+        let importsRegex = /(<import(\s*)template=")(.*)("(\s*)>)/g,
+            codeImports = template.match(importsRegex)
+
+        if(!codeImports) return template
+        
+        codeImports.forEach((codeImport, index) => {
+            let codeImportWithIndex = codeImport.replace('template=', `template[${index}]=`)
+
+            template = template.replace(codeImport, codeImportWithIndex)
+        })
+
+        return template
+    }
+
     addImportsToTemplate(template) {
-        let importsRegex = /(?<=(<import(\s*)template="))(.*)(?=("(\s*)>))/g,
+        let importsRegex = /(?<=(<import(\s*)template\[\d+\]="))(.*)(?=("(\s*)>))/g,
             codeImports = template.match(importsRegex)
 
         if(!codeImports) return template
 
-        codeImports.forEach(codeImport => {
-            let importReplacementRegex = new RegExp(`(<import(\\s*)template=")(${codeImport})("(\\s*)>)`, 'g')
+        codeImports.forEach((codeImport, codeImportIndex) => {
+            let importReplacementRegex = new RegExp(`(<import(\\s*)template\\[${codeImportIndex}\\]=")(${codeImport})("(\\s*)>)`, 'g')
 
-            let importContent = this.imports[codeImport]
-            if(!importContent) throw new Error(`Please provide the import ${codeImport} content on the options.imports settings`)
+            let codeImportContent = this.imports[codeImport]
+            if(!codeImportContent) throw new Error(`Please provide the import ${codeImport} content on the options.imports settings`)
 
-            template = template.replace(importReplacementRegex, importContent)
+            codeImportContent = this.addCorrectIdentationToImportContent(template, codeImportContent, codeImportIndex)
+
+            template = template.replace(importReplacementRegex, codeImportContent)
         })
 
         return template
+    }
+
+    addCorrectIdentationToImportContent(template, codeImportContent, codeImportIndex) {
+        let codeImportTemplateIndex = template.indexOf(`<import template[${codeImportIndex}]`),
+            codeImportLine = this.getLineNumberForIndex(template, codeImportTemplateIndex),
+            templateLines = template.split('\n'),
+            templateLine = templateLines[codeImportLine - 1],
+            quantityOfSpaces = templateLine.search(/\S|$/)
+
+        let codeImportLines = codeImportContent.split('\n')
+
+        codeImportLines = codeImportLines.map((line, index) => {
+            if(index > 0) {
+                line = `${' '.repeat(quantityOfSpaces)}${line}`
+            }
+
+            return line
+        })
+
+        return codeImportLines.join('\n')
     }
 
     initSettings() {
@@ -237,7 +276,7 @@ class Template {
                 matchesOcurrences[match[0]]
             )
 
-            let templateLineNumber = this.getLineNumberForIndex(matchPositionOnOriginalTemplate)
+            let templateLineNumber = this.getLineNumberForIndex(this.template, matchPositionOnOriginalTemplate)
 
             // Add the correct javascript blocks considering the
             // regex matches
@@ -305,8 +344,8 @@ class Template {
         return line;
     }
 
-    getLineNumberForIndex(index) {
-        let perLine = this.template.split('\n'),
+    getLineNumberForIndex(template, index) {
+        let perLine = template.split('\n'),
             totalLength = 0,
             position = index + 1,
             i = 0;

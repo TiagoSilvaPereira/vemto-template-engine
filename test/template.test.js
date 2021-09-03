@@ -161,3 +161,38 @@ test('it can import other pieces of data', () => {
     expect(result.includes(`<import template="Greetings.vemtl">`)).toBe(false)
 })
 
+test('it import code with correct identation', () => {
+    let data = {
+        name: 'Tiago Rodrigues',
+        greetings: 'Happy Coding for You!!',
+    };
+
+    let greetingsTemplate = 
+`<$ this.greetings $>
+<$ this.greetings $> Again!!`
+
+    let template =
+`Hi, I'm <$ this.name $>.
+
+    <import template="Greetings.vemtl">
+    
+Something
+
+        <import template="Greetings.vemtl">`;
+
+    let result = new VET(template, {
+        imports: {
+            'Greetings.vemtl': greetingsTemplate,
+        }
+    }).compile(data);
+    
+    let resultLines = result.split('\n')
+
+    // Needs to have the initial 4 spaces
+    expect(resultLines[2].search('    ') !== -1).toBe(true)
+    expect(resultLines[3].search('    ') !== -1).toBe(true)
+
+    // Needs to have the initial 8 spaces
+    expect(resultLines[7].search('        ') !== -1).toBe(true)
+    expect(resultLines[8].search('        ') !== -1).toBe(true)
+})
