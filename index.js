@@ -24,6 +24,10 @@ class Template {
         this.resetTemplate();
     }
 
+    getTemplate() {
+        return this.content
+    }
+
     setTemplate(template) {
         let completeTemplate = this.addImportsToTemplate(template);
 
