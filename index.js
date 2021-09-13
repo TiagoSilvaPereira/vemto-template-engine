@@ -25,7 +25,7 @@ class Template {
     }
 
     getTemplate() {
-        return this.content
+        return this.template
     }
 
     setTemplate(template) {
