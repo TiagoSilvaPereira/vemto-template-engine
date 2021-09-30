@@ -1,6 +1,6 @@
 const VET = require('../index')
 
-test('renders a simple template', () => {
+test('it renders a simple template', () => {
 
     let data = {
         name: 'Tiago Silva Pereira Rodrigues',
@@ -48,8 +48,8 @@ test('it shows the correct template error position', () => {
     expect(() => compiler.compileWithErrorTreatment(data)).toThrow();
 
     let latestError = compiler.getLatestError()
-
-    expect(latestError.codeLine).toBe(8)
+    
+    expect(latestError.codeLine).toBe(9)
     expect(latestError.templateLine).toBe(2)
 })
 
@@ -235,4 +235,52 @@ test('it allows to import code on sub-templates', () => {
     expect(result.includes(`<$ this.greetings $>`)).toBe(false)
     expect(result.includes(`<import template="OtherTemplate.vemtl">`)).toBe(false)
     expect(result.includes(`<import template="Greetings.vemtl">`)).toBe(false)
+})
+
+test('it can remove the last line break from a code block', () => {
+    let template = `Hi, I'm <$ this.name $>.
+    <% if(true) { %>
+    test
+    <% } %>
+    <% this.removeLastLineBreak() %>`;
+
+    let result = new VET(template).compile({}),
+        lines = result.split('\n');
+    
+    expect(lines.length).toBe(2)
+})
+
+test('it ignores code blocks indentation by default', () => {
+    let template = [
+        '<% if (true) { %>',
+        '    <% if (true) { %>',
+        '        <% if (true) { %>',
+        '        <% let text = "Text here"  %>',
+        '        <$ text $>',
+        '        <% } %>',
+        '    <% } %>',
+        '<% } %>',
+    ].join('\n')
+
+    let result = new VET(template).compile({});
+
+    expect(result.length).toBe(18)
+})
+
+test('it can remove code blocks indentation if necessary', () => {
+    let template = [
+        '<# MODE: INDENTATION_DIFF #>',
+        '<% if (true) { %>',
+        '    <% if (true) { %>',
+        '        <% if (true) { %>',
+        '        <% let text = "Text here"  %>',
+        '        <$ text $>',
+        '        <% } %>',
+        '    <% } %>',
+        '<% } %>',
+    ].join('\n')
+
+    let result = new VET(template).compile({});
+    
+    expect(result.length).toBe(9)
 })

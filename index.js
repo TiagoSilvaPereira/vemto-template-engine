@@ -230,12 +230,15 @@ class Template {
     addHelperFunctions() {
         
         // Can be used inside a template to conditionally remove the last breakline
-        let removeLastBreakLine = function() {
+        let removeLastLineBreak = function() {
             let lastCodeBlockIndex = codeBlocks.length - 1;
+
+            if(!lastCodeBlockIndex || lastCodeBlockIndex < 0) return
+
             codeBlocks[lastCodeBlockIndex - 1] = codeBlocks[lastCodeBlockIndex - 1].replace(/(\r\n|\n|\r|\u2028|\u2029){1}(\t| )*$/, '')
         }
         
-        this.generatedCode += 'this.removeLastBreakLine = ' + removeLastBreakLine.toString() + ';\n';
+        this.generatedCode += 'this.removeLastLineBreak = ' + removeLastLineBreak.toString() + ';\n';
 
     }
 
@@ -243,11 +246,11 @@ class Template {
         // Remove comments
         this.intermediateTemplate = this.intermediateTemplate.replace(/(\r\n|\n|\r|\u2028|\u2029)?(\t| )*(<#)(.*)(#>)/g, '');
 
-        // Remove breaklines from logic blocks
+        // Remove line-breaks from logic blocks
         this.intermediateTemplate = this.intermediateTemplate.replace(/(\r\n|\n|\r|\u2028|\u2029){1}(\t| )*(<%)/g, '<%');
         this.intermediateTemplate = this.intermediateTemplate.replace(/(\r\n|\n|\r||\u2028|\u2029){1}(\t| )*(<up)/g, '<up');
 
-        // Remove spaces and breaklines after lineup logic block
+        // Remove spaces and line-breaks after lineup logic block
         this.intermediateTemplate = this.intermediateTemplate.replace(/(up>)(\r\n|\n|\r|\u2028|\u2029){1}(\t| )*/g, 'up>');
     }
 
@@ -306,12 +309,21 @@ class Template {
             // so it can return null values in some options, but valid options on other. For
             // example: [null, ' something ', null]
             if(templateMatch[block.index]) {
-                this.addTextBlock(templateMatch[block.index], true, block.type, lineNumber);
+                this.addTextBlock(
+                    templateMatch[block.index], 
+                    true, 
+                    block.type, 
+                    lineNumber, 
+                    templateMatch[0]
+                );
             }
         }
     }
 
-    addTextBlock(content, isJavascript = false, type = 'TEXT', lineNumber = 0) {
+    addTextBlock(content, isJavascript = false, type = 'TEXT', lineNumber = 0, originalContent) {
+
+        originalContent = originalContent || content
+
         if(type == 'TEXT') {
             content = this.convertTextSpecialCharacters(content);
         }
@@ -320,8 +332,11 @@ class Template {
             content,
             isJavascript,
             type,
-            lineNumber
+            lineNumber,
+            originalContent,
         };
+
+        console.log(textBlock)
 
         this.textBlocks.push(textBlock);
     }
