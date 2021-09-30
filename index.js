@@ -14,8 +14,8 @@ class Template {
         this.options = options;
         this.imports = options.imports || {}
 
+        this.indentStep = 0
         this.indentBackSpaces = 0
-        this.lastIndentSpaces = 0
         this.onIndentBackMode = false
 
         this.setTemplate(template)
@@ -333,11 +333,25 @@ class Template {
         
         if(!isJavascript) {
             this.checkCodeModes(content)
+        } else {
+            let templateLine = this.getTemplateLine(lineNumber),
+                spacesQuantity = parseInt(templateLine.search(/\S|$/), 10)
+
+            if(/((<%|<up)(\s*)(}|break;)(\s*)(%>|up>))/.test(originalContent)) {
+                this.removeIndentationSpaces(spacesQuantity)
+            } else if(/(<%|<up)(\s*)(if|for|while|else|switch|case)(.*)(%>|up>)/.test(originalContent)) {
+                this.registerIndentationSpaces(spacesQuantity)
+            }
         }
 
         // Remove spaces from logic blocks indentation
         if(content.length && this.onIndentBackMode && this.indentBackSpaces > 0 && !isJavascript) {
-            let initialSpacesRegex = new RegExp(`(?<!\\w|[ ])([ ]{${this.indentBackSpaces}})`, 'g')
+            let contentSpacesQuantity = parseInt(content.replace('\n', '').search(/\S|$/), 10),
+                diffOfSpaces = contentSpacesQuantity - this.indentBackSpaces
+
+            diffOfSpaces = diffOfSpaces >= 0 ? diffOfSpaces : 0
+
+            let initialSpacesRegex = new RegExp(`(?<!\\w|[ ])([ ]{${diffOfSpaces}})`, 'g')
             content = content.replace(initialSpacesRegex, '')
         }
 
@@ -357,38 +371,23 @@ class Template {
 
         this.textBlocks.push(textBlock);
         
-        
-        if(isJavascript) {
-            let templateLine = this.getTemplateLine(lineNumber),
-                spacesQuantity = parseInt(templateLine.search(/\S|$/), 10)
-
-            if(/((<%|<up)(\s*)(}|break;)(\s*)(%>|up>))/.test(originalContent)) {
-                this.removeIndentationSpaces(spacesQuantity)
-            } else if(/(<%|<up)(\s*)(if|for|while|else|switch|case)(.*)(%>|up>)/.test(originalContent)) {
-                this.addIndentationSpaces(spacesQuantity)
-            }
-        }
-
         return textBlock;
     }
 
-    addIndentationSpaces(quantity) {
-        this.lastIndentSpaces = this.indentBackSpaces
-        this.indentBackSpaces = quantity
+    registerIndentationSpaces(quantity) {
+        if(!this.indentStep) {
+            this.indentBackSpaces = quantity
+        }
+
+        this.indentStep++
     }
 
     removeIndentationSpaces() {
-        let diff = parseInt(this.indentBackSpaces - this.lastIndentSpaces, 10)
+        this.indentStep--
 
-        this.indentBackSpaces = parseInt(this.indentBackSpaces - diff, 10)
-        this.lastIndentSpaces = parseInt(this.lastIndentSpaces - diff, 10)
-
-        if(this.indentBackSpaces <= 0) {
+        if(this.indentStep <= 0) {
+            this.indentStep = 0
             this.indentBackSpaces = 0
-        }
-
-        if(this.lastIndentSpaces <= 0) {
-            this.lastIndentSpaces = 0
         }
     }
 

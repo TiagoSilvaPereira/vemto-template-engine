@@ -274,19 +274,20 @@ test('it can remove code blocks indentation if necessary', () => {
         'Hello world!',
         '    <% if (true) { %>',
         '        <% if (true) { %>',
-        '            <% if (true) { %>', // 12,8
+        '            <% if (true) { %>',
         '                <% let text = "Text here"  %>',
         '                <$ text $>',
         '                Second Text Here',
-        '            <% } %>', // 8, 4
+        '            <% } %>',
         '            Third Text Here',
-        '        <% } %>', // 4, 0
+        '        <% } %>',
         '        Hello World!!',
         '        Other!!',
         '    <% } %>',
         '    Other Text here',
         '    <% if (true) { %>',
-        '    Text on the border',
+        '        Another text',
+        '            Another text',
         '    <% } %>',
         '    <% if (true) { %>',
         '        Text with four spaces',
@@ -298,7 +299,7 @@ test('it can remove code blocks indentation if necessary', () => {
     
     let result = new VET(template).compile({}),
         lines = result.split('\n')
-    
+
     expect(lines[1].search(/\S|$/)).toBe(0)
     expect(lines[2].search(/\S|$/)).toBe(0)
     expect(lines[3].search(/\S|$/)).toBe(4)
@@ -307,8 +308,37 @@ test('it can remove code blocks indentation if necessary', () => {
     expect(lines[6].search(/\S|$/)).toBe(4)
     expect(lines[7].search(/\S|$/)).toBe(4)
     expect(lines[8].search(/\S|$/)).toBe(4)
-    expect(lines[9].search(/\S|$/)).toBe(0)
-    expect(lines[10].search(/\S|$/)).toBe(4)
-    expect(lines[11].search(/\S|$/)).toBe(8)
+    expect(lines[9].search(/\S|$/)).toBe(4)
+    expect(lines[10].search(/\S|$/)).toBe(8)
+    expect(lines[11].search(/\S|$/)).toBe(4)
+    expect(lines[12].search(/\S|$/)).toBe(8)
+
+})
+
+test('it can remove code blocks indentation for html code', () => {
+    let template = [
+        '<mode indent-back mode>',
+        '<html>',
+        '    <body>',
+        '        <% if(true) { %>',
+        '            <% if(true) { %>',
+        '                Teste', // it goes to the same level of the opening if, because the first indentation level is always carried back
+        '                    Teste', 
+        '            <% } %>',
+        '        <% } %>',
+        '    </body>',
+        '</html>',
+    ].join('\n')
+
+    
+    let result = new VET(template).compile({}),
+        lines = result.split('\n')
+    
+    expect(lines[1].search(/\S|$/)).toBe(0)
+    expect(lines[2].search(/\S|$/)).toBe(4)
+    expect(lines[3].search(/\S|$/)).toBe(8)
+    expect(lines[4].search(/\S|$/)).toBe(12)
+    expect(lines[5].search(/\S|$/)).toBe(4)
+    expect(lines[6].search(/\S|$/)).toBe(0)
 
 })
