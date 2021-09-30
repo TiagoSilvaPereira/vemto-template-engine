@@ -309,7 +309,7 @@ class Template {
             // so it can return null values in some options, but valid options on other. For
             // example: [null, ' something ', null]
             if(templateMatch[block.index]) {
-                this.addTextBlock(
+                return this.addTextBlock(
                     templateMatch[block.index], 
                     true, 
                     block.type, 
@@ -339,6 +339,8 @@ class Template {
         console.log(textBlock)
 
         this.textBlocks.push(textBlock);
+
+        return textBlock;
     }
 
     addLine(block) {
