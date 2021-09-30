@@ -14,6 +14,10 @@ class Template {
         this.options = options;
         this.imports = options.imports || {}
 
+        this.indentBackSpaces = 0
+        this.lastIndentSpaces = 0
+        this.onIndentBackMode = false
+
         this.setTemplate(template)
 
         if(this.options.logger) {
@@ -215,7 +219,7 @@ class Template {
 
     generateCode() {
         this.resetTemplate();
-        this.treatTemplateCode();
+        this.treatTemplateCodeBeforeStart();
         this.separateTextFromCodeBlocks();
 
         this.textBlocks.forEach(block => {
@@ -242,7 +246,9 @@ class Template {
 
     }
 
-    treatTemplateCode() {
+    treatTemplateCodeBeforeStart() {
+        //TODO: maybe invert to remove the comment from the end, not from the start of the line
+
         // Remove comments
         this.intermediateTemplate = this.intermediateTemplate.replace(/(\r\n|\n|\r|\u2028|\u2029)?(\t| )*(<#)(.*)(#>)/g, '');
 
@@ -317,12 +323,25 @@ class Template {
                     templateMatch[0]
                 );
             }
+
         }
     }
 
     addTextBlock(content, isJavascript = false, type = 'TEXT', lineNumber = 0, originalContent) {
 
         originalContent = originalContent || content
+        
+        if(!isJavascript) {
+            this.checkCodeModes(content)
+        }
+
+        // Remove spaces from logic blocks indentation
+        if(content.length && this.onIndentBackMode && this.indentBackSpaces > 0 && !isJavascript) {
+            let initialSpacesRegex = new RegExp(`(?<!\\w|[ ])([ ]{${this.indentBackSpaces}})`, 'g')
+            content = content.replace(initialSpacesRegex, '')
+        }
+
+        content = this.replaceModeTagsOnContent(content)
 
         if(type == 'TEXT') {
             content = this.convertTextSpecialCharacters(content);
@@ -336,11 +355,58 @@ class Template {
             originalContent,
         };
 
-        console.log(textBlock)
-
         this.textBlocks.push(textBlock);
+        
+        
+        if(isJavascript) {
+            let templateLine = this.getTemplateLine(lineNumber),
+                spacesQuantity = parseInt(templateLine.search(/\S|$/), 10)
+
+            if(/((<%|<up)(\s*)(}|break;)(\s*)(%>|up>))/.test(originalContent)) {
+                this.removeIndentationSpaces(spacesQuantity)
+            } else if(/(<%|<up)(\s*)(if|for|while|else|switch|case)(.*)(%>|up>)/.test(originalContent)) {
+                this.addIndentationSpaces(spacesQuantity)
+            }
+        }
 
         return textBlock;
+    }
+
+    addIndentationSpaces(quantity) {
+        this.lastIndentSpaces = this.indentBackSpaces
+        this.indentBackSpaces = quantity
+    }
+
+    removeIndentationSpaces() {
+        let diff = parseInt(this.indentBackSpaces - this.lastIndentSpaces, 10)
+
+        this.indentBackSpaces = parseInt(this.indentBackSpaces - diff, 10)
+        this.lastIndentSpaces = parseInt(this.lastIndentSpaces - diff, 10)
+
+        if(this.indentBackSpaces <= 0) {
+            this.indentBackSpaces = 0
+        }
+
+        if(this.lastIndentSpaces <= 0) {
+            this.lastIndentSpaces = 0
+        }
+    }
+
+    replaceModeTagsOnContent(content) {
+        content = content.replace(/(\r\n|\n|\r|\u2028|\u2029)?(\t| )*<mode(.*)mode>/, '')
+        content = content.replace(/(\r\n|\n|\r|\u2028|\u2029)?(\t| )*<endmode(.*)endmode>/, '')
+
+        return content
+    }
+
+    checkCodeModes(content) {
+        if(content.includes('<mode indent-back mode>')) {
+            this.onIndentBackMode = true
+        }
+
+        if(content.includes('<endmode indent-back endmode>')) {
+            this.onIndentBackMode = true
+        }
     }
 
     addLine(block) {
@@ -384,6 +450,13 @@ class Template {
         }
 
         return 0;
+    }
+
+    getTemplateLine(line) {
+        let lines = this.template.split('\n'),
+            lineIndex = line - 1
+
+        return lines[lineIndex]
     }
 
     getStringOcurrenceIndexByOrder(string, subString, order) {
