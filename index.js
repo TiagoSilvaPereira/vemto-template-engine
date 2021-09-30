@@ -405,7 +405,7 @@ class Template {
         }
 
         if(content.includes('<endmode indent-back endmode>')) {
-            this.onIndentBackMode = true
+            this.onIndentBackMode = false
         }
     }
 
