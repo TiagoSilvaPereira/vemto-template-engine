@@ -17,6 +17,7 @@ class Template {
         this.indentStep = 0
         this.indentBackSpaces = 0
         this.onIndentBackMode = false
+        this.isInsideIndentContainer = false
 
         this.setTemplate(template)
 
@@ -345,7 +346,7 @@ class Template {
         }
 
         // Remove spaces from logic blocks indentation
-        if(content.length && this.onIndentBackMode && this.indentBackSpaces > 0 && !isJavascript) {
+        if(content.length && this.onIndentBackMode && this.isInsideIndentContainer && !isJavascript) {
             let contentSpacesQuantity = parseInt(content.replace('\n', '').search(/\S|$/), 10),
                 diffOfSpaces = contentSpacesQuantity - this.indentBackSpaces
 
@@ -377,6 +378,7 @@ class Template {
     registerIndentationSpaces(quantity) {
         if(!this.indentStep) {
             this.indentBackSpaces = quantity
+            this.isInsideIndentContainer = true
         }
 
         this.indentStep++
@@ -388,6 +390,7 @@ class Template {
         if(this.indentStep <= 0) {
             this.indentStep = 0
             this.indentBackSpaces = 0
+            this.isInsideIndentContainer = false
         }
     }
 

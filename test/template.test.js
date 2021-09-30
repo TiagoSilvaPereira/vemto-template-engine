@@ -293,6 +293,9 @@ test('it can remove code blocks indentation if necessary', () => {
         '        Text with four spaces',
         '            Text with eight spaces',
         '    <% } %>',
+        '<% if (true) { %>',
+        '    Text in the border',
+        '<% } %>',
         '<endmode indent-back endmode>',
     ].join('\n')
 
@@ -333,7 +336,7 @@ test('it can remove code blocks indentation for html code', () => {
     
     let result = new VET(template).compile({}),
         lines = result.split('\n')
-    
+
     expect(lines[1].search(/\S|$/)).toBe(0)
     expect(lines[2].search(/\S|$/)).toBe(4)
     expect(lines[3].search(/\S|$/)).toBe(8)
