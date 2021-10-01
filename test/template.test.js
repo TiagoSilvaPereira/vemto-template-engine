@@ -303,6 +303,8 @@ test('it can remove code blocks indentation if necessary', () => {
     let result = new VET(template).compile({}),
         lines = result.split('\n')
 
+        console.log(lines)
+
     expect(lines[1].search(/\S|$/)).toBe(0)
     expect(lines[2].search(/\S|$/)).toBe(0)
     expect(lines[3].search(/\S|$/)).toBe(4)
@@ -343,5 +345,35 @@ test('it can remove code blocks indentation for html code', () => {
     expect(lines[4].search(/\S|$/)).toBe(12)
     expect(lines[5].search(/\S|$/)).toBe(4)
     expect(lines[6].search(/\S|$/)).toBe(0)
+
+})
+
+test('it correctly remove code blocks indentation for multiple text blocks', () => {
+    let template = [
+        '<mode indent-back mode>',
+        '<html>',
+        '    <body>',
+        '        <% if(true) { %>',
+        '            <% if(true) { %>',
+        '                <% let name = "Tiago Rodrigues" %>',
+        '                Hello <$ name $> how are you!!!',
+        '            <% } %>',
+        '        <% } %>',
+        '    </body>',
+        '</html>',
+    ].join('\n')
+
+    
+    let result = new VET(template).compile({}),
+        lines = result.split('\n')
+
+    console.log(result)
+
+    // expect(lines[1].search(/\S|$/)).toBe(0)
+    // expect(lines[2].search(/\S|$/)).toBe(4)
+    // expect(lines[3].search(/\S|$/)).toBe(8)
+    // expect(lines[4].search(/\S|$/)).toBe(12)
+    // expect(lines[5].search(/\S|$/)).toBe(4)
+    // expect(lines[6].search(/\S|$/)).toBe(0)
 
 })

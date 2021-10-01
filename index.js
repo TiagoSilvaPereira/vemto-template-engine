@@ -15,7 +15,9 @@ class Template {
         this.imports = options.imports || {}
 
         this.indentStep = 0
+        this.indentSteps = {}
         this.indentBackSpaces = 0
+        this.currentStepSpaces = 0
         this.onIndentBackMode = false
         this.isInsideIndentContainer = false
 
@@ -334,26 +336,25 @@ class Template {
         
         if(!isJavascript) {
             this.checkCodeModes(content)
-        } else {
-            let templateLine = this.getTemplateLine(lineNumber),
-                spacesQuantity = parseInt(templateLine.search(/\S|$/), 10)
-
-            if(/((<%|<up)(\s*)(}|break;)(\s*)(%>|up>))/.test(originalContent)) {
-                this.removeIndentationSpaces(spacesQuantity)
-            } else if(/(<%|<up)(\s*)(if|for|while|else|switch|case)(.*)(%>|up>)/.test(originalContent)) {
-                this.registerIndentationSpaces(spacesQuantity)
-            }
         }
 
         // Remove spaces from logic blocks indentation
         if(content.length && this.onIndentBackMode && this.isInsideIndentContainer && !isJavascript) {
-            let contentSpacesQuantity = parseInt(content.replace('\n', '').search(/\S|$/), 10),
-                diffOfSpaces = contentSpacesQuantity - this.indentBackSpaces
+            let contentLines = content.split('\n')
 
-            diffOfSpaces = diffOfSpaces >= 0 ? diffOfSpaces : 0
+            contentLines = contentLines.map(line => {
+                let lineSpacesQuantity = parseInt(line.replace('\n', '').search(/\S|$/), 10),
+                    extraSpaces = lineSpacesQuantity - this.currentStepSpaces,
+                    diffOfSpaces = lineSpacesQuantity - this.indentBackSpaces - extraSpaces
+    
+                diffOfSpaces = diffOfSpaces >= 0 ? diffOfSpaces : 0
+    
+                let initialSpacesRegex = new RegExp(`(?<!\\w|[ ])([ ]{${diffOfSpaces}})`, 'g')
+                
+                return line.replace(initialSpacesRegex, '')
+            })
 
-            let initialSpacesRegex = new RegExp(`(?<!\\w|[ ])([ ]{${diffOfSpaces}})`, 'g')
-            content = content.replace(initialSpacesRegex, '')
+            content = contentLines.join('\n')
         }
 
         content = this.replaceModeTagsOnContent(content)
@@ -371,6 +372,17 @@ class Template {
         };
 
         this.textBlocks.push(textBlock);
+
+        if(isJavascript) {
+            let templateLine = this.getTemplateLine(lineNumber),
+                spacesQuantity = parseInt(templateLine.search(/\S|$/), 10)
+
+            if(/((<%|<up)(\s*)(}|break;)(\s*)(%>|up>))/.test(originalContent)) {
+                this.removeIndentationSpaces(spacesQuantity)
+            } else if(/(<%|<up)(\s*)(if|for|while|else|switch|case)(.*)(%>|up>)/.test(originalContent)) {
+                this.registerIndentationSpaces(spacesQuantity)
+            }
+        }
         
         return textBlock;
     }
@@ -378,18 +390,32 @@ class Template {
     registerIndentationSpaces(quantity) {
         if(!this.indentStep) {
             this.indentBackSpaces = quantity
+            this.currentStepSpaces = quantity
             this.isInsideIndentContainer = true
         }
 
         this.indentStep++
+        this.currentStepSpaces = quantity
+        this.indentSteps[this.indentStep] = {
+            spaces: quantity
+        }
+
+        console.log('add', this.indentStep, this.currentStepSpaces)
+
     }
 
     removeIndentationSpaces() {
         this.indentStep--
+        console.log(this.indentSteps)
+        let currentStep = this.indentSteps[this.indentStep - 1]
+        this.currentStepSpaces = currentStep ? currentStep.quantity : 0
+
+        console.log('remove', this.indentStep, this.currentStepSpaces)
 
         if(this.indentStep <= 0) {
             this.indentStep = 0
             this.indentBackSpaces = 0
+            this.currentStepSpaces = 0
             this.isInsideIndentContainer = false
         }
     }
