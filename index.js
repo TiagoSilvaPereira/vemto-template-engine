@@ -17,7 +17,6 @@ class Template {
         this.indentStep = 0
         this.indentSteps = {}
         this.indentBackSpaces = 0
-        this.currentStepSpaces = 0
         this.onIndentBackMode = false
         this.isInsideIndentContainer = false
 
@@ -338,6 +337,17 @@ class Template {
             this.checkCodeModes(content)
         }
 
+        if(isJavascript && this.onIndentBackMode) {
+            let templateLine = this.getTemplateLine(lineNumber),
+                spacesQuantity = parseInt(templateLine.search(/\S|$/), 10)
+
+            if(/((<%|<up)(\s*)(}|break;)(\s*)(%>|up>))/.test(originalContent)) {
+                this.removeIndentationSpaces(spacesQuantity)
+            } else if(/(<%|<up)(\s*)(if|for|while|else|switch|case)(.*)(%>|up>)/.test(originalContent)) {
+                this.registerIndentationSpaces(spacesQuantity)
+            }
+        }
+
         // Remove spaces from logic blocks indentation
         if(content.length && this.onIndentBackMode && this.isInsideIndentContainer && !isJavascript) {
             let contentLines = content.split('\n')
@@ -373,17 +383,6 @@ class Template {
         };
 
         this.textBlocks.push(textBlock);
-
-        if(isJavascript) {
-            let templateLine = this.getTemplateLine(lineNumber),
-                spacesQuantity = parseInt(templateLine.search(/\S|$/), 10)
-
-            if(/((<%|<up)(\s*)(}|break;)(\s*)(%>|up>))/.test(originalContent)) {
-                this.removeIndentationSpaces(spacesQuantity)
-            } else if(/(<%|<up)(\s*)(if|for|while|else|switch|case)(.*)(%>|up>)/.test(originalContent)) {
-                this.registerIndentationSpaces(spacesQuantity)
-            }
-        }
         
         return textBlock;
     }
@@ -397,24 +396,18 @@ class Template {
         }
 
         this.indentStep++
-        this.currentStepSpaces = quantity
         this.indentSteps[this.indentStep] = {
             spaces: quantity
         }
-
-        // console.log('add', this.indentStep, this.currentStepSpaces)
 
     }
 
     removeIndentationSpaces() {
         this.indentStep--
-        let currentStep = this.indentSteps[this.indentStep - 1]
-        this.currentStepSpaces = typeof currentStep !== 'undefined' ? currentStep.spaces : 0
 
         if(this.indentStep <= 0) {
             this.indentStep = 0
             this.indentBackSpaces = 0
-            this.currentStepSpaces = 0
             this.isInsideIndentContainer = false
         }
     }
