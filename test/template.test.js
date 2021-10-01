@@ -275,26 +275,26 @@ test('it can remove code blocks indentation if necessary', () => {
         '    <% if (true) { %>',
         '        <% if (true) { %>',
         '            <% if (true) { %>',
-        '                <% let text = "Text here"  %>',
-        '                <$ text $>',
-        '                Second Text Here',
+        '            <% let text = "Text here"  %>',
+        '            <$ text $>',
+        '            Second Text Here',
         '            <% } %>',
-        '            Third Text Here',
+        '        Third Text Here',
         '        <% } %>',
-        '        Hello World!!',
-        '        Other!!',
+        '    Hello World!!',
+        '    Other!!',
         '    <% } %>',
-        '    Other Text here',
+        'Other Text here',
         '    <% if (true) { %>',
+        '    Another text',
         '        Another text',
-        '            Another text',
         '    <% } %>',
         '    <% if (true) { %>',
-        '        Text with four spaces',
-        '            Text with eight spaces',
+        '    Text with four spaces',
+        '        Text with eight spaces',
         '    <% } %>',
         '<% if (true) { %>',
-        '    Text in the border',
+        'Text in the border',
         '<% } %>',
         '<endmode indent-back endmode>',
     ].join('\n')
@@ -303,8 +303,6 @@ test('it can remove code blocks indentation if necessary', () => {
     let result = new VET(template).compile({}),
         lines = result.split('\n')
 
-        console.log(lines)
-
     expect(lines[1].search(/\S|$/)).toBe(0)
     expect(lines[2].search(/\S|$/)).toBe(0)
     expect(lines[3].search(/\S|$/)).toBe(4)
@@ -312,7 +310,7 @@ test('it can remove code blocks indentation if necessary', () => {
     expect(lines[5].search(/\S|$/)).toBe(4)
     expect(lines[6].search(/\S|$/)).toBe(4)
     expect(lines[7].search(/\S|$/)).toBe(4)
-    expect(lines[8].search(/\S|$/)).toBe(4)
+    expect(lines[8].search(/\S|$/)).toBe(0)
     expect(lines[9].search(/\S|$/)).toBe(4)
     expect(lines[10].search(/\S|$/)).toBe(8)
     expect(lines[11].search(/\S|$/)).toBe(4)
@@ -327,17 +325,16 @@ test('it can remove code blocks indentation for html code', () => {
         '    <body>',
         '        <% if(true) { %>',
         '            <% if(true) { %>',
-        '                Teste', // it goes to the same level of the opening if, because the first indentation level is always carried back
-        '                    Teste', 
+        '            Teste', // it goes to the same level of the opening if, because the first indentation level is always carried back
+        '                Teste', 
         '            <% } %>',
         '        <% } %>',
         '    </body>',
         '</html>',
     ].join('\n')
 
-    
     let result = new VET(template).compile({}),
-        lines = result.split('\n')
+        lines = result.split('\n')    
 
     expect(lines[1].search(/\S|$/)).toBe(0)
     expect(lines[2].search(/\S|$/)).toBe(4)
@@ -355,8 +352,10 @@ test('it correctly remove code blocks indentation for multiple text blocks', () 
         '    <body>',
         '        <% if(true) { %>',
         '            <% if(true) { %>',
-        '                <% let name = "Tiago Rodrigues" %>',
-        '                Hello <$ name $> how are you!!!',
+        '            <% let name = "Tiago Rodrigues" %>',
+        '            Test test test <$ name $> test asdasdasd',
+        '            Hello <$ name $> how are you!!!',
+        '                Hello again <$ name $> how are you???',
         '            <% } %>',
         '        <% } %>',
         '    </body>',
@@ -367,13 +366,12 @@ test('it correctly remove code blocks indentation for multiple text blocks', () 
     let result = new VET(template).compile({}),
         lines = result.split('\n')
 
-    console.log(result)
-
-    // expect(lines[1].search(/\S|$/)).toBe(0)
-    // expect(lines[2].search(/\S|$/)).toBe(4)
-    // expect(lines[3].search(/\S|$/)).toBe(8)
-    // expect(lines[4].search(/\S|$/)).toBe(12)
-    // expect(lines[5].search(/\S|$/)).toBe(4)
-    // expect(lines[6].search(/\S|$/)).toBe(0)
+    expect(lines[1].search(/\S|$/)).toBe(0)
+    expect(lines[2].search(/\S|$/)).toBe(4)
+    expect(lines[3].search(/\S|$/)).toBe(8)
+    expect(lines[4].search(/\S|$/)).toBe(8)
+    expect(lines[5].search(/\S|$/)).toBe(12)
+    expect(lines[6].search(/\S|$/)).toBe(4)
+    expect(lines[7].search(/\S|$/)).toBe(0)
 
 })

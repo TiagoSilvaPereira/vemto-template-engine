@@ -344,7 +344,8 @@ class Template {
 
             contentLines = contentLines.map(line => {
                 let lineSpacesQuantity = parseInt(line.replace('\n', '').search(/\S|$/), 10),
-                    extraSpaces = lineSpacesQuantity - this.currentStepSpaces,
+                    currentStep = this.indentSteps[this.indentStep] || {},
+                    extraSpaces = lineSpacesQuantity - (currentStep.spaces || 0),
                     diffOfSpaces = lineSpacesQuantity - this.indentBackSpaces - extraSpaces
     
                 diffOfSpaces = diffOfSpaces >= 0 ? diffOfSpaces : 0
@@ -388,9 +389,10 @@ class Template {
     }
 
     registerIndentationSpaces(quantity) {
+        quantity = quantity || 0
+
         if(!this.indentStep) {
             this.indentBackSpaces = quantity
-            this.currentStepSpaces = quantity
             this.isInsideIndentContainer = true
         }
 
@@ -400,17 +402,14 @@ class Template {
             spaces: quantity
         }
 
-        console.log('add', this.indentStep, this.currentStepSpaces)
+        // console.log('add', this.indentStep, this.currentStepSpaces)
 
     }
 
     removeIndentationSpaces() {
         this.indentStep--
-        console.log(this.indentSteps)
         let currentStep = this.indentSteps[this.indentStep - 1]
-        this.currentStepSpaces = currentStep ? currentStep.quantity : 0
-
-        console.log('remove', this.indentStep, this.currentStepSpaces)
+        this.currentStepSpaces = typeof currentStep !== 'undefined' ? currentStep.spaces : 0
 
         if(this.indentStep <= 0) {
             this.indentStep = 0
@@ -428,12 +427,12 @@ class Template {
     }
 
     checkCodeModes(content) {
-        if(content.includes('<mode indent-back mode>')) {
-            this.onIndentBackMode = true
-        }
-
         if(content.includes('<endmode indent-back endmode>')) {
             this.onIndentBackMode = false
+        }
+
+        if(content.includes('<mode indent-back mode>')) {
+            this.onIndentBackMode = true
         }
     }
 
