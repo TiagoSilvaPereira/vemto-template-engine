@@ -352,6 +352,9 @@ class Template {
         if(content.length && this.onIndentBackMode && this.isInsideIndentContainer && !isJavascript) {
             let contentLines = content.split('\n')
 
+            // It needs to break a text block into lines because each
+            // block may have multiple lines and it needs to remove the
+            // spaces from each line start
             contentLines = contentLines.map(line => {
                 let lineSpacesQuantity = parseInt(line.replace('\n', '').search(/\S|$/), 10),
                     currentStep = this.indentSteps[this.indentStep] || {},
@@ -413,19 +416,14 @@ class Template {
     }
 
     replaceModeTagsOnContent(content) {
-        content = content.replace(/(\r\n|\n|\r|\u2028|\u2029)?(\t| )*<mode(.*)mode>/, '')
-        content = content.replace(/(\r\n|\n|\r|\u2028|\u2029)?(\t| )*<endmode(.*)endmode>/, '')
+        content = content.replace(/(\r\n|\n|\r|\u2028|\u2029)?(\t| )*<\*(.*)\*>/, '')
 
         return content
     }
 
     checkCodeModes(content) {
-        if(content.includes('<endmode indent-back endmode>')) {
-            this.onIndentBackMode = false
-        }
-
-        if(content.includes('<mode indent-back mode>')) {
-            this.onIndentBackMode = true
+        if(content.includes('<* indent-back *>')) {
+            this.onIndentBackMode = ! this.onIndentBackMode
         }
     }
 
