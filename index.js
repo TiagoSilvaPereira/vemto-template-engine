@@ -416,7 +416,7 @@ class Template {
     }
 
     replaceModeTagsOnContent(content) {
-        content = content.replace(/(\r\n|\n|\r|\u2028|\u2029)?(\t| )*<\*(.*)\*>/, '')
+        content = content.replace(/(\r\n|\n|\r|\u2028|\u2029)?(\t| )*<\*(.*)\*>/g, '')
 
         return content
     }
