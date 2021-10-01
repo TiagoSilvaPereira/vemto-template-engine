@@ -389,7 +389,7 @@ test('it can disable code blocks indentation', () => {
         '                Hello again <$ name $> how are you???',
         '            <% } %>',
         '        <% } %>',
-        '<* indent-back *>',
+        '<* end:indent-back *>',
         '        <% if(true) { %>',
         '            <% if(true) { %>',
         '            <% let name = "Tiago Rodrigues" %>',

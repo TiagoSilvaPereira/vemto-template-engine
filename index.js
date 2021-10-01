@@ -422,8 +422,12 @@ class Template {
     }
 
     checkCodeModes(content) {
+        if(content.includes('<* end:indent-back *>')) {
+            this.onIndentBackMode = false
+        }
+
         if(content.includes('<* indent-back *>')) {
-            this.onIndentBackMode = ! this.onIndentBackMode
+            this.onIndentBackMode = true
         }
     }
 
