@@ -48,12 +48,12 @@ test('it shows the correct template error position', () => {
     expect(() => compiler.compileWithErrorTreatment(data)).toThrow();
 
     let latestError = compiler.getLatestError()
-    
-    expect(latestError.codeLine).toBe(9)
+
+    expect(latestError.codeLine).toBe(11)
     expect(latestError.templateLine).toBe(2)
 })
 
-test('it shows the correct template error positions with a more complex scenario', () => {
+test('it shows the correct template error - positions with a more complex scenario', () => {
 
     let data = {
         name: 'Tiago Silva Pereira Rodrigues',
@@ -82,7 +82,7 @@ test('it shows the correct template error positions with a more complex scenario
     let compiler = new VET(template);
     
     expect(() => compiler.compileWithErrorTreatment(data))
-        .toThrow(`Cannot read property 'name' of undefined`);
+        .toThrow(`Cannot read properties of undefined (reading 'name')`);
 
     let latestError = compiler.getLatestError()
     
@@ -103,11 +103,33 @@ namespace <$ this.namespace $>;
     let compiler = new VET(template);
 
     expect(() => compiler.compileWithErrorTreatment(data))
-        .toThrow(`Cannot read property 'name' of undefined`);
+        .toThrow(`Cannot read properties of undefined (reading 'name')`);
 
     let latestError = compiler.getLatestError()
 
     expect(latestError.templateLine).toBe(2)
+})
+
+test('it shows the correct error positions for logic sections', () => {
+    let data = {};
+
+let template = `<?php
+// A comment here
+// Another comment
+
+<% if(foo) { %>
+// Something here
+<% } %>
+`;
+
+    let compiler = new VET(template);
+
+    expect(() => compiler.compileWithErrorTreatment(data))
+        .toThrow(`foo is not defined`);
+
+    let latestError = compiler.getLatestError()
+
+    expect(latestError.templateLine).toBe(5)
 })
 
 test('it can import other pieces of data', () => {

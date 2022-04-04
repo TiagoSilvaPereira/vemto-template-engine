@@ -206,14 +206,12 @@ class Template {
     getTemplateLineFromCodeLine(codeLine) {
         if(!codeLine) return 0
 
-        let generatedCode = this.options.onBrowser 
-            ? this.getGeneratedCodeFunctionAsString() 
-            : this.generatedCode
+        let generatedCode = this.getGeneratedCodeFunctionAsString() 
             
         let codeLines = generatedCode.split('\n'),
             code = codeLines[codeLine - 1]
 
-        let templateLine = code.replace(/(codeBlocks)(.*)(TEMPLATE_LINE:)/, '')
+        let templateLine = code.replace(/(.*)(TEMPLATE_LINE:)/, '')
 
         return templateLine || 0
     }
