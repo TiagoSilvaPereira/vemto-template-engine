@@ -291,34 +291,34 @@ test('it ignores code blocks indentation by default', () => {
 
 test('it can remove code blocks indentation if necessary', () => {
     let template = [
-        '<mode indent-back mode>',
+        '<* indent-back *>',
         'Hello world!',
         'Hello world!',
         '    <% if (true) { %>',
         '        <% if (true) { %>',
         '            <% if (true) { %>',
-        '                <% let text = "Text here"  %>',
-        '                <$ text $>',
-        '                Second Text Here',
+        '            <% let text = "Text here"  %>',
+        '            <$ text $>',
+        '            Second Text Here',
         '            <% } %>',
-        '            Third Text Here',
+        '        Third Text Here',
         '        <% } %>',
-        '        Hello World!!',
-        '        Other!!',
+        '    Hello World!!',
+        '    Other!!',
         '    <% } %>',
-        '    Other Text here',
+        'Other Text here',
         '    <% if (true) { %>',
+        '    Another text',
         '        Another text',
-        '            Another text',
         '    <% } %>',
         '    <% if (true) { %>',
-        '        Text with four spaces',
-        '            Text with eight spaces',
+        '    Text with four spaces',
+        '        Text with eight spaces',
         '    <% } %>',
         '<% if (true) { %>',
-        '    Text in the border',
+        'Text in the border',
         '<% } %>',
-        '<endmode indent-back endmode>',
+        '<* indent-back *>',
     ].join('\n')
 
     
@@ -332,7 +332,7 @@ test('it can remove code blocks indentation if necessary', () => {
     expect(lines[5].search(/\S|$/)).toBe(4)
     expect(lines[6].search(/\S|$/)).toBe(4)
     expect(lines[7].search(/\S|$/)).toBe(4)
-    expect(lines[8].search(/\S|$/)).toBe(4)
+    expect(lines[8].search(/\S|$/)).toBe(0)
     expect(lines[9].search(/\S|$/)).toBe(4)
     expect(lines[10].search(/\S|$/)).toBe(8)
     expect(lines[11].search(/\S|$/)).toBe(4)
@@ -342,13 +342,42 @@ test('it can remove code blocks indentation if necessary', () => {
 
 test('it can remove code blocks indentation for html code', () => {
     let template = [
-        '<mode indent-back mode>',
+        '<* indent-back *>',
         '<html>',
         '    <body>',
         '        <% if(true) { %>',
         '            <% if(true) { %>',
-        '                Teste', // it goes to the same level of the opening if, because the first indentation level is always carried back
-        '                    Teste', 
+        '            Teste', // it goes to the same level of the opening if, because the first indentation level is always carried back
+        '                Teste', 
+        '            <% } %>',
+        '        <% } %>',
+        '    </body>',
+        '</html>',
+    ].join('\n')
+
+    let result = new VET(template).compile({}),
+        lines = result.split('\n')    
+
+    expect(lines[1].search(/\S|$/)).toBe(0)
+    expect(lines[2].search(/\S|$/)).toBe(4)
+    expect(lines[3].search(/\S|$/)).toBe(8)
+    expect(lines[4].search(/\S|$/)).toBe(12)
+    expect(lines[5].search(/\S|$/)).toBe(4)
+    expect(lines[6].search(/\S|$/)).toBe(0)
+
+})
+
+test('it correctly remove code blocks indentation for multiple text blocks', () => {
+    let template = [
+        '<* indent-back *>',
+        '<html>',
+        '    <body>',
+        '        <% if(true) { %>',
+        '            <% if(true) { %>',
+        '            <% let name = "Tiago Rodrigues" %>',
+        '            Test test test <$ name $> test asdasdasd',
+        '            Hello <$ name $> how are you!!!',
+        '                Hello again <$ name $> how are you???',
         '            <% } %>',
         '        <% } %>',
         '    </body>',
@@ -362,8 +391,52 @@ test('it can remove code blocks indentation for html code', () => {
     expect(lines[1].search(/\S|$/)).toBe(0)
     expect(lines[2].search(/\S|$/)).toBe(4)
     expect(lines[3].search(/\S|$/)).toBe(8)
+    expect(lines[4].search(/\S|$/)).toBe(8)
+    expect(lines[5].search(/\S|$/)).toBe(12)
+    expect(lines[6].search(/\S|$/)).toBe(4)
+    expect(lines[7].search(/\S|$/)).toBe(0)
+
+})
+
+test('it can disable code blocks indentation', () => {
+    let template = [
+        '<html>',
+        '    <body>',
+        '<* indent-back *>',
+        '        <% if(true) { %>',
+        '            <% if(true) { %>',
+        '            <% let name = "Tiago Rodrigues" %>',
+        '            Test test test <$ name $> test asdasdasd',
+        '            Hello <$ name $> how are you!!!',
+        '                Hello again <$ name $> how are you???',
+        '            <% } %>',
+        '        <% } %>',
+        '<* end:indent-back *>',
+        '        <% if(true) { %>',
+        '            <% if(true) { %>',
+        '            <% let name = "Tiago Rodrigues" %>',
+        '            Test test test <$ name $> test asdasdasd',
+        '            Hello <$ name $> how are you!!!',
+        '                Hello again <$ name $> how are you???',
+        '            <% } %>',
+        '        <% } %>',
+        '    </body>',
+        '</html>',
+    ].join('\n')
+
+    
+    let result = new VET(template).compile({}),
+        lines = result.split('\n')
+
+    expect(lines[0].search(/\S|$/)).toBe(0)
+    expect(lines[1].search(/\S|$/)).toBe(4)
+    expect(lines[2].search(/\S|$/)).toBe(8)
+    expect(lines[3].search(/\S|$/)).toBe(8)
     expect(lines[4].search(/\S|$/)).toBe(12)
-    expect(lines[5].search(/\S|$/)).toBe(4)
-    expect(lines[6].search(/\S|$/)).toBe(0)
+    expect(lines[5].search(/\S|$/)).toBe(12)
+    expect(lines[6].search(/\S|$/)).toBe(12)
+    expect(lines[7].search(/\S|$/)).toBe(16)
+    expect(lines[8].search(/\S|$/)).toBe(4)
+    expect(lines[9].search(/\S|$/)).toBe(0)
 
 })

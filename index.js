@@ -15,6 +15,7 @@ class Template {
         this.imports = options.imports || {}
 
         this.indentStep = 0
+        this.indentSteps = {}
         this.indentBackSpaces = 0
         this.onIndentBackMode = false
         this.isInsideIndentContainer = false
@@ -332,7 +333,9 @@ class Template {
         
         if(!isJavascript) {
             this.checkCodeModes(content)
-        } else {
+        }
+
+        if(isJavascript && this.onIndentBackMode) {
             let templateLine = this.getTemplateLine(lineNumber),
                 spacesQuantity = parseInt(templateLine.search(/\S|$/), 10)
 
@@ -345,13 +348,25 @@ class Template {
 
         // Remove spaces from logic blocks indentation
         if(content.length && this.onIndentBackMode && this.isInsideIndentContainer && !isJavascript) {
-            let contentSpacesQuantity = parseInt(content.replace('\n', '').search(/\S|$/), 10),
-                diffOfSpaces = contentSpacesQuantity - this.indentBackSpaces
+            let contentLines = content.split('\n')
 
-            diffOfSpaces = diffOfSpaces >= 0 ? diffOfSpaces : 0
+            // It needs to break a text block into lines because each
+            // block may have multiple lines and it needs to remove the
+            // spaces from each line start
+            contentLines = contentLines.map(line => {
+                let lineSpacesQuantity = parseInt(line.replace('\n', '').search(/\S|$/), 10),
+                    currentStep = this.indentSteps[this.indentStep] || {},
+                    extraSpaces = lineSpacesQuantity - (currentStep.spaces || 0),
+                    diffOfSpaces = lineSpacesQuantity - this.indentBackSpaces - extraSpaces
+    
+                diffOfSpaces = diffOfSpaces >= 0 ? diffOfSpaces : 0
+    
+                let initialSpacesRegex = new RegExp(`(?<!\\w|[ ])([ ]{${diffOfSpaces}})`, 'g')
+                
+                return line.replace(initialSpacesRegex, '')
+            })
 
-            let initialSpacesRegex = new RegExp(`(?<!\\w|[ ])([ ]{${diffOfSpaces}})`, 'g')
-            content = content.replace(initialSpacesRegex, '')
+            content = contentLines.join('\n')
         }
 
         content = this.replaceModeTagsOnContent(content)
@@ -374,12 +389,18 @@ class Template {
     }
 
     registerIndentationSpaces(quantity) {
+        quantity = quantity || 0
+
         if(!this.indentStep) {
             this.indentBackSpaces = quantity
             this.isInsideIndentContainer = true
         }
 
         this.indentStep++
+        this.indentSteps[this.indentStep] = {
+            spaces: quantity
+        }
+
     }
 
     removeIndentationSpaces() {
@@ -393,19 +414,18 @@ class Template {
     }
 
     replaceModeTagsOnContent(content) {
-        content = content.replace(/(\r\n|\n|\r|\u2028|\u2029)?(\t| )*<mode(.*)mode>/, '')
-        content = content.replace(/(\r\n|\n|\r|\u2028|\u2029)?(\t| )*<endmode(.*)endmode>/, '')
+        content = content.replace(/(\r\n|\n|\r|\u2028|\u2029)?(\t| )*<\*(.*)\*>/g, '')
 
         return content
     }
 
     checkCodeModes(content) {
-        if(content.includes('<mode indent-back mode>')) {
-            this.onIndentBackMode = true
+        if(content.includes('<* end:indent-back *>')) {
+            this.onIndentBackMode = false
         }
 
-        if(content.includes('<endmode indent-back endmode>')) {
-            this.onIndentBackMode = false
+        if(content.includes('<* indent-back *>')) {
+            this.onIndentBackMode = true
         }
     }
 
