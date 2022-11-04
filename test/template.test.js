@@ -20,7 +20,7 @@ test('it renders a simple template', () => {
     <% } %>
     `;
 
-    let result = new VET(template).compile(data); 
+    let result = new VET(template).setData(data).compile(); 
     
     expect(result.includes(`Hi, I'm Tiago Silva Pereira Rodrigues`)).toBe(true)
     expect(result.includes(`- PWC`)).toBe(true)
@@ -45,7 +45,7 @@ test('it shows the correct template error position', () => {
 
     let compiler = new VET(template);
 
-    expect(() => compiler.compileWithErrorTreatment(data)).toThrow();
+    expect(() => compiler.setData(data).compileWithErrorTreatment()).toThrow();
 
     let latestError = compiler.getLatestError()
 
@@ -81,7 +81,7 @@ test('it shows the correct template error - positions with a more complex scenar
 
     let compiler = new VET(template);
     
-    expect(() => compiler.compileWithErrorTreatment(data))
+    expect(() => compiler.setData(data).compileWithErrorTreatment())
         .toThrow(`Cannot read properties of undefined (reading 'name')`);
 
     let latestError = compiler.getLatestError()
@@ -102,7 +102,7 @@ namespace <$ this.namespace $>;
 
     let compiler = new VET(template);
 
-    expect(() => compiler.compileWithErrorTreatment(data))
+    expect(() => compiler.setData(data).compileWithErrorTreatment())
         .toThrow(`Cannot read properties of undefined (reading 'name')`);
 
     let latestError = compiler.getLatestError()
@@ -124,7 +124,7 @@ let template = `<?php
 
     let compiler = new VET(template);
 
-    expect(() => compiler.compileWithErrorTreatment(data))
+    expect(() => compiler.setData(data).compileWithErrorTreatment())
         .toThrow(`foo is not defined`);
 
     let latestError = compiler.getLatestError()
@@ -165,7 +165,7 @@ test('it can import other pieces of data', () => {
             'ForLoop.vemtl': forLoopTemplate,
             'Greetings.vemtl': greetingsTemplate,
         }
-    }).compile(data);
+    }).setData(data).compile();
     
     expect(result.includes(`Hi, I'm Tiago Silva Pereira Rodrigues`)).toBe(true)
     expect(result.includes(`- PWC`)).toBe(true)
@@ -206,7 +206,7 @@ Something
         imports: {
             'Greetings.vemtl': greetingsTemplate,
         }
-    }).compile(data);
+    }).setData(data).compile();
     
     let resultLines = result.split('\n')
 
@@ -247,7 +247,7 @@ test('it allows to import code on sub-templates', () => {
             'OtherTemplate.vemtl': otherTemplate,
             'Greetings.vemtl': greetingsTemplate,
         }
-    }).compile(data);
+    }).setData(data).compile();
 
     expect(result.includes(`Hi, I'm Tiago Rodrigues`)).toBe(true)
     expect(result.includes(`Happy Coding for You!!`)).toBe(true)
@@ -266,7 +266,7 @@ test('it can remove the last line break from a code block', () => {
     <% } %>
     <% this.removeLastLineBreak() %>`;
 
-    let result = new VET(template).compile({}),
+    let result = new VET(template).setData({}).compile(),
         lines = result.split('\n');
     
     expect(lines.length).toBe(2)
@@ -284,7 +284,7 @@ test('it ignores code blocks indentation by default', () => {
         '<% } %>',
     ].join('\n')
 
-    let result = new VET(template).compile({});
+    let result = new VET(template).setData({}).compile();
 
     expect(result.length).toBe(18)
 })
@@ -322,7 +322,7 @@ test('it can remove code blocks indentation if necessary', () => {
     ].join('\n')
 
     
-    let result = new VET(template).compile({}),
+    let result = new VET(template).setData({}).compile(),
         lines = result.split('\n')
 
     expect(lines[1].search(/\S|$/)).toBe(0)
@@ -355,7 +355,7 @@ test('it can remove code blocks indentation for html code', () => {
         '</html>',
     ].join('\n')
 
-    let result = new VET(template).compile({}),
+    let result = new VET(template).setData({}).compile(),
         lines = result.split('\n')    
 
     expect(lines[1].search(/\S|$/)).toBe(0)
@@ -385,7 +385,7 @@ test('it correctly remove code blocks indentation for multiple text blocks', () 
     ].join('\n')
 
     
-    let result = new VET(template).compile({}),
+    let result = new VET(template).setData({}).compile(),
         lines = result.split('\n')
 
     expect(lines[1].search(/\S|$/)).toBe(0)
@@ -425,7 +425,7 @@ test('it can disable code blocks indentation', () => {
     ].join('\n')
 
     
-    let result = new VET(template).compile({}),
+    let result = new VET(template).setData({}).compile(),
         lines = result.split('\n')
 
     expect(lines[0].search(/\S|$/)).toBe(0)
@@ -439,4 +439,19 @@ test('it can disable code blocks indentation', () => {
     expect(lines[8].search(/\S|$/)).toBe(4)
     expect(lines[9].search(/\S|$/)).toBe(0)
 
+})
+
+test('it can catch template errors separately', () => {
+    let template = `
+    Hi, I'm <$ user.name $>
+    Other Line
+    `;
+
+    let compiler = new VET(template);
+
+    compiler.generateCode();
+
+    const validCode = compiler.codeIsValid(false);
+
+    expect(validCode).toBe(false);
 })

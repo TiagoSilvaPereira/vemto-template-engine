@@ -20,6 +20,8 @@ class Template {
         this.onIndentBackMode = false
         this.isInsideIndentContainer = false
 
+        this.data = {};
+
         this.setTemplate(template)
 
         if(this.options.logger) {
@@ -28,6 +30,16 @@ class Template {
 
         this.initSettings();
         this.resetTemplate();
+    }
+
+    setData(data) {
+        this.data = data;
+
+        return this;
+    }
+
+    getData() {
+        return this.data;
     }
 
     getTemplate() {
@@ -152,9 +164,9 @@ class Template {
         this.addHelperFunctions();
     }
 
-    compileWithErrorTreatment(data) {
+    compileWithErrorTreatment() {
         try {
-            return this.compile(data);
+            return this.compile();
         } catch (error) {
             this.setLatestError(error);
 
@@ -162,12 +174,12 @@ class Template {
         }
     }
 
-    compile(data) {
+    compile() {
         this.generateCode();
 
         this.compiled = true;
 
-        return new Function(this.generatedCode).apply(data);
+        return new Function(this.generatedCode).apply(this.data);
     }
 
     getPreCompiledCode() {
@@ -494,16 +506,23 @@ class Template {
     finishGeneratedCode() {
         this.generatedCode += 'return codeBlocks.join("");';
         this.generatedCode.replace(/[\r\t\n]/g, '');
-        this.checkGeneratedCode();
     }
 
-    checkGeneratedCode() {
-        let error = check(this.generatedCode);
-        if(error) {
-            console.error('TEMPLATE SYNTAX - ERROR DETECTED'.red);
-            console.error(error);
-            console.error(Array(76).join('-')); //-----...
+    codeIsValid(showErrors = true) {
+        try {
+            new Function(this.generatedCode).apply(this.data)
+        } catch (error) {
+            
+            if(showErrors) {
+                console.error('TEMPLATE SYNTAX - ERROR DETECTED'.red);
+                console.error(error);
+                console.error(Array(76).join('-')); //-----...
+            }
+
+            return false;
         }
+
+        return true;
     }
 
 }
