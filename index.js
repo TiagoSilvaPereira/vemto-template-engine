@@ -1,6 +1,6 @@
 'use strict';
 
-class Template {
+export default class Template {
 
     constructor(template, options = {}) {
         this.latestError = null;
@@ -523,5 +523,3 @@ class Template {
     }
 
 }
-
-module.exports = Template;
