@@ -1,8 +1,5 @@
 'use strict';
 
-const
-    check = require('syntax-error');
-
 class Template {
 
     constructor(template, options = {}) {

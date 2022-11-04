@@ -19,9 +19,7 @@
     "url": "https://github.com/TiagoSilvaPereira/vemto-template-engine/issues"
   },
   "homepage": "https://github.com/TiagoSilvaPereira/vemto-template-engine#readme",
-  "dependencies": {
-    "syntax-error": "^1.4.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "jest": "^26.4.2"
   }
