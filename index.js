@@ -44,7 +44,11 @@ export default class Template {
     }
 
     setTemplate(template) {
-        let completeTemplate = this.addImportsToTemplate(template);
+        let completeTemplate = template
+
+        if(!this.options.disableImportsProcessing) {
+            completeTemplate = this.addImportsToTemplate(template);
+        }
 
         this.template = completeTemplate;
         this.intermediateTemplate = completeTemplate;
@@ -72,6 +76,17 @@ export default class Template {
         })
 
         return template
+    }
+
+    getImportedTemplates() {
+        let template = this.addImportsIndexes(this.template)
+
+        let importsRegex = /(?<=(<import(\s*)template\[\d+\]="))(.*)(?=("(\s*)>))/g,
+            codeImports = template.match(importsRegex)
+
+        if(!codeImports) return []
+
+        return codeImports
     }
 
     addImportsIndexes(template) {

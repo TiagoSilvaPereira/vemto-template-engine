@@ -1,4 +1,4 @@
-const VET = require('../index')
+import VET from "../index.js";
 
 test('it renders a simple template', () => {
 
@@ -257,6 +257,23 @@ test('it allows to import code on sub-templates', () => {
     expect(result.includes(`<$ this.greetings $>`)).toBe(false)
     expect(result.includes(`<import template="OtherTemplate.vemtl">`)).toBe(false)
     expect(result.includes(`<import template="Greetings.vemtl">`)).toBe(false)
+})
+
+test('it can get all template imports names', () => {
+    let template = `
+    Hi, I'm <$ this.name $>.
+
+    I created these projects:
+    
+    <import template="Greetings.vemtl">
+    `;
+
+    let result = new VET(template, {
+        disableImportsProcessing: true
+    }).getImportedTemplates();
+
+    expect(result.includes(`Greetings.vemtl`)).toBe(true)
+    expect(result.includes(`OtherTemplate.vemtl`)).toBe(false)
 })
 
 test('it can remove the last line break from a code block', () => {
