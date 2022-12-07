@@ -122,7 +122,7 @@ export default class Template {
     getImportedTemplates() {
         let template = this.addImportsIndexes(this.template)
 
-        let importsRegex = /(?<=(<import(\s*)template\[\d+\]="))(.*)(?=("(\s*)>))/g,
+        let importsRegex = /(?<=(<import(\s*)template\[\d+\]="))(.*?)(?=")/g,
             codeImports = template.match(importsRegex)
 
         if(!codeImports) return []

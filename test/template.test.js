@@ -265,7 +265,7 @@ test('it can get all template imports names', () => {
 
     I created these projects:
     
-    <import template="Greetings.vemtl">
+    <import template="Greetings.vemtl" message="'Hello'">
     `;
 
     let result = new VET(template, {
