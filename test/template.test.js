@@ -49,7 +49,7 @@ test('it shows the correct template error position', () => {
 
     let latestError = compiler.getLatestError()
 
-    expect(latestError.codeLine).toBe(11)
+    expect(latestError.codeLine).toBe(12)
     expect(latestError.templateLine).toBe(2)
 })
 
@@ -132,7 +132,7 @@ let template = `<?php
     expect(latestError.templateLine).toBe(5)
 })
 
-test('it can import other pieces of data', () => {
+test('it can import other templates', () => {
     let data = {
         name: 'Tiago Silva Pereira Rodrigues',
         projects: [
@@ -274,6 +274,62 @@ test('it can get all template imports names', () => {
 
     expect(result.includes(`Greetings.vemtl`)).toBe(true)
     expect(result.includes(`OtherTemplate.vemtl`)).toBe(false)
+})
+
+test('it can import templates with params', () => {
+    let data = {}
+
+    let importedTemplate = `
+    Testing imported template
+
+    <% if(this.templateParams.showMessage) { %>
+        <$ this.templateParams.message $>
+    <% } %>
+    `
+
+    let template = `
+    Hi!!
+    
+    <import template="ImportedTemplate.vemtl" message="'Hello World'" showMessage="true">
+    `;
+
+    let result = new VET(template, {
+        imports: {
+            'ImportedTemplate.vemtl': importedTemplate,
+        }
+    }).setData(data).compile();
+    
+    expect(result.includes(`Hi!!`)).toBe(true)
+    expect(result.includes(`Testing imported template`)).toBe(true)
+    expect(result.includes(`Hello World`)).toBe(true)
+})
+
+test('it can use templateParams with undefined params', () => {
+    let data = {}
+
+    let importedTemplate = `
+    Testing imported template
+
+    <% if(this.templateParams.showMessage) { %>
+        <$ this.templateParams.message $>
+    <% } %>
+    `
+
+    let template = `
+    Hi!!
+    
+    <import template="ImportedTemplate.vemtl">
+    `;
+
+    let result = new VET(template, {
+        imports: {
+            'ImportedTemplate.vemtl': importedTemplate,
+        }
+    }).setData(data).compile();
+    
+    expect(result.includes(`Hi!!`)).toBe(true)
+    expect(result.includes(`Testing imported template`)).toBe(true)
+    expect(result.includes(`Hello World`)).toBe(false)
 })
 
 test('it can remove the last line break from a code block', () => {

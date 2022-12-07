@@ -57,18 +57,26 @@ export default class Template {
     addImportsToTemplate(template) {
         template = this.addImportsIndexes(template)
 
-        let importsRegex = /(?<=(<import(\s*)template\[\d+\]="))(.*)(?=("(\s*)>))/g,
+        let importsRegex = /(?<=(<import(\s*)template\[\d+\]="))(.*?)(?=("(\s*)))/g,
             codeImports = template.match(importsRegex)
 
         if(!codeImports) return template
 
         codeImports.forEach((codeImport, codeImportIndex) => {
-            let importReplacementRegex = new RegExp(`(<import(\\s*)template\\[${codeImportIndex}\\]=")(${codeImport})("(\\s*)>)`, 'g')
+            let importReplacementRegex = new RegExp(`(<import(\\s*)template\\[${codeImportIndex}\\]=")(${codeImport})(.*>)`, 'g')
 
             let codeImportContent = this.imports[codeImport]
             if(!codeImportContent) throw new Error(`Please provide the import ${codeImport} content on the options.imports settings`)
 
             codeImportContent = this.addImportsToTemplate(codeImportContent)
+
+            codeImportContent = this.addParamsToImportContent(
+                template, 
+                codeImportContent, 
+                codeImportIndex, 
+                codeImport, 
+                importReplacementRegex
+            )
 
             codeImportContent = this.addCorrectIndentationToImportContent(template, codeImportContent, codeImportIndex)
 
@@ -76,6 +84,39 @@ export default class Template {
         })
 
         return template
+    }
+
+    addParamsToImportContent(template, codeImportContent, codeImportIndex, codeImport, importReplacementRegex) {
+        let paramsRegex = new RegExp(`(?<=(<import(\\s*)template\\[${codeImportIndex}\\]="${codeImport}"))(.*)(?=(>))`, 'g'),
+            importTagContent = template.match(importReplacementRegex)[0],
+            paramsContent = importTagContent.match(paramsRegex),
+            params = []
+
+        if(paramsContent) {
+            let singleParamRegex = /(\w+)="(.+?)"/g,
+                paramsKeyValue = paramsContent[0].match(singleParamRegex) || []
+
+            paramsKeyValue.forEach(param => {
+                let paramKeyValue = param.split('=')
+
+                if(paramKeyValue.length > 1) {
+                    let paramKey = paramKeyValue[0],
+                        paramValue = paramKeyValue[1].replace(/"/g, '')
+
+                    params.push({ key: paramKey, value: paramValue })
+                }
+            })
+        }
+
+        let templateParamsContentLines = [] 
+
+        templateParamsContentLines.push('<% this.templateParams = {} %>')
+
+        params.forEach(param => {
+            templateParamsContentLines.push(`<% this.templateParams.${param.key} = ${param.value} %>`)
+        })
+
+        return templateParamsContentLines.join('\n') + '\n' + codeImportContent
     }
 
     getImportedTemplates() {
@@ -170,7 +211,7 @@ export default class Template {
         this.latestError = null;
         this.compiled = false;
         this.hasGeneratedCode = false;
-        this.generatedCode = '"use strict";\nvar codeBlocks = [];\n';
+        this.generatedCode = '"use strict";\nlet codeBlocks = [];\nthis.templateParams = {};\n';
         this.actualLineIsLogic = false;
         this.previousLineIsLogic = false;
         this.addHelperFunctions();
