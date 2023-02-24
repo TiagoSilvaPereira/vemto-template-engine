@@ -1,10 +1,19 @@
 {
   "name": "@tiago_silva_pereira/vemto-template-engine",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Vemto Template Engine",
-  "main": "index.js",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "typings": "./typings/index.d.ts",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "build": "node prepare-build.js && tsc -p tsconfig-cjs.json && tsc -p tsconfig-esm.json && node fixup.js"
   },
   "repository": {
     "type": "git",
@@ -24,6 +33,8 @@
     "@babel/core": "^7.20.2",
     "@babel/plugin-transform-modules-commonjs": "^7.19.6",
     "babel-jest": "^29.3.1",
-    "jest": "^26.4.2"
+    "jest": "^26.4.2",
+    "tsc": "^2.0.4",
+    "typescript": "^4.9.5"
   }
 }
