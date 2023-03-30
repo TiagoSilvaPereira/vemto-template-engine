@@ -160,8 +160,11 @@ export default class Template {
     compile() {
         this.generateCode();
         this.compiled = true;
-        this.data.require = (module) => this.require[module];
+        this.addDataHelpers();
         return new Function(this.generatedCode).apply(this.data);
+    }
+    addDataHelpers() {
+        this.data.require = (module) => this.require[module];
     }
     getPreCompiledCode() {
         if (!this.hasGeneratedCode) {
@@ -390,6 +393,7 @@ export default class Template {
     }
     codeIsValid(showErrors = true) {
         try {
+            this.addDataHelpers();
             new Function(this.generatedCode).apply(this.data);
         }
         catch (error) {

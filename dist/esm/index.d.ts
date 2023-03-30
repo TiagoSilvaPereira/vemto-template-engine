@@ -60,6 +60,7 @@ export default class Template {
     previousLineIsLogic: boolean;
     compileWithErrorTreatment(): any;
     compile(): any;
+    addDataHelpers(): void;
     getPreCompiledCode(): string;
     getGeneratedCodeFunctionAsString(): string;
     setLatestError(error: any): void;
