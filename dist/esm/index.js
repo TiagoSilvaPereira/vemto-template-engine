@@ -160,6 +160,7 @@ export default class Template {
     compile() {
         this.generateCode();
         this.compiled = true;
+        this.data.require = (module) => this.require[module];
         return new Function(this.generatedCode).apply(this.data);
     }
     getPreCompiledCode() {
@@ -213,10 +214,6 @@ export default class Template {
             codeBlocks[lastCodeBlockIndex - 1] = codeBlocks[lastCodeBlockIndex - 1].replace(/(\r\n|\n|\r|\u2028|\u2029){1}(\t| )*$/, '');
         };
         this.generatedCode += 'this.removeLastLineBreak = ' + removeLastLineBreak.toString() + ';\n';
-        const require = function (module = 'unknown') {
-            return this.require[module];
-        };
-        this.generatedCode += 'const require = ' + require.toString() + ';\n';
     }
     treatTemplateCodeBeforeStart() {
         //TODO: maybe invert to remove the comment from the end, not from the start of the line
