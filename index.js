@@ -10,6 +10,7 @@ export default class Template {
 
         this.options = options;
         this.imports = options.imports || {}
+        this.require = options.require || {}
 
         this.indentStep = 0
         this.indentSteps = {}
@@ -232,6 +233,8 @@ export default class Template {
 
         this.compiled = true;
 
+        this.data.require = (module) => this.require[module];
+
         return new Function(this.generatedCode).apply(this.data);
     }
 
@@ -299,7 +302,7 @@ export default class Template {
     addHelperFunctions() {
         
         // Can be used inside a template to conditionally remove the last breakline
-        let removeLastLineBreak = function() {
+        const removeLastLineBreak = function() {
             let lastCodeBlockIndex = codeBlocks.length - 1;
 
             if(!lastCodeBlockIndex || lastCodeBlockIndex < 0) return
@@ -308,7 +311,6 @@ export default class Template {
         }
         
         this.generatedCode += 'this.removeLastLineBreak = ' + removeLastLineBreak.toString() + ';\n';
-
     }
 
     treatTemplateCodeBeforeStart() {

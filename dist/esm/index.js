@@ -6,6 +6,7 @@ export default class Template {
         this.hasGeneratedCode = false;
         this.options = options;
         this.imports = options.imports || {};
+        this.require = options.require || {};
         this.indentStep = 0;
         this.indentSteps = {};
         this.indentBackSpaces = 0;
@@ -205,13 +206,17 @@ export default class Template {
     }
     addHelperFunctions() {
         // Can be used inside a template to conditionally remove the last breakline
-        let removeLastLineBreak = function () {
+        const removeLastLineBreak = function () {
             let lastCodeBlockIndex = codeBlocks.length - 1;
             if (!lastCodeBlockIndex || lastCodeBlockIndex < 0)
                 return;
             codeBlocks[lastCodeBlockIndex - 1] = codeBlocks[lastCodeBlockIndex - 1].replace(/(\r\n|\n|\r|\u2028|\u2029){1}(\t| )*$/, '');
         };
         this.generatedCode += 'this.removeLastLineBreak = ' + removeLastLineBreak.toString() + ';\n';
+        const require = function (module = 'unknown') {
+            return this.require[module];
+        };
+        this.generatedCode += 'const require = ' + require.toString() + ';\n';
     }
     treatTemplateCodeBeforeStart() {
         //TODO: maybe invert to remove the comment from the end, not from the start of the line

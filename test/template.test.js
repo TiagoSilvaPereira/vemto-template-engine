@@ -528,3 +528,22 @@ test('it can catch template errors separately', () => {
 
     expect(validCode).toBe(false);
 })
+
+test('it can require and use provided modules', () => {
+    let data = {}
+
+    let template = `
+    <% const changeCase = this.require('changeCase') %>
+    Hi <$ changeCase('Tiago') $>!
+    `;
+
+    const changeCase = (str) => str.toUpperCase() + '-CHANGED';
+
+    let result = new VET(template, {
+        require: {
+            'changeCase': changeCase,
+        }
+    }).setData(data).compile();
+    
+    expect(result.includes(`Hi TIAGO-CHANGED!`)).toBe(true)
+})

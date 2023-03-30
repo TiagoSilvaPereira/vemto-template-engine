@@ -9,6 +9,7 @@ export default class Template {
     hasGeneratedCode: boolean;
     options: {};
     imports: any;
+    require: any;
     indentStep: number;
     indentSteps: {};
     indentBackSpaces: number;
