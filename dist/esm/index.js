@@ -163,6 +163,14 @@ export default class Template {
         this.addDataHelpers();
         return new Function(this.generatedCode).apply(this.data);
     }
+    async compileAsync() {
+        this.generateCode();
+        this.compiled = true;
+        this.addDataHelpers();
+        const AsyncFunction = async function () { }.constructor;
+        const generatedFunction = new AsyncFunction(this.generatedCode);
+        return generatedFunction.apply(this.data);
+    }
     addDataHelpers() {
         this.data.require = (module) => this.require[module];
     }

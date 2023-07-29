@@ -547,3 +547,22 @@ test('it can require and use provided modules', () => {
     
     expect(result.includes(`Hi TIAGO-CHANGED!`)).toBe(true)
 })
+
+test('it can render a template asynchronouly', async () => {
+    let data = {
+        name: 'Tiago',
+        asyncFunction: async () => {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    resolve('Rodrigues')
+                }, 5)
+            })
+        }
+    };
+
+    let template = `Hi, I'm <$ this.name $> <$ await this.asyncFunction() $>`;
+
+    let result = await new VET(template).setData(data).compileAsync(); 
+
+    expect(result.includes(`Hi, I'm Tiago Rodrigues`)).toBe(true)
+})

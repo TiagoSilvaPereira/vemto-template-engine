@@ -1,0 +1,51 @@
+Date : 2023-05-17 13:01:40
+Directory : c:\Users\tiago\code\vemto-template-engine
+Total : 18 files,  12569 codes, 135 comments, 344 blanks, all 13048 lines
+
+Languages
++--------------------+------------+------------+------------+------------+------------+
+| language           | files      | code       | comment    | blank      | total      |
++--------------------+------------+------------+------------+------------+------------+
+| JSON               |          7 |     10,668 |          0 |          2 |     10,670 |
+| JavaScript         |          7 |      1,593 |        118 |        284 |      1,995 |
+| TypeScript         |          2 |        202 |          6 |          2 |        210 |
+| Markdown           |          1 |         96 |          0 |         56 |        152 |
+| JSON with Comments |          1 |         10 |         11 |          0 |         21 |
++--------------------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                            | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                               |         18 |     12,569 |        135 |        344 |     13,048 |
+| . (Files)                                                       |         11 |     11,197 |         50 |        214 |     11,461 |
+| dist                                                            |          6 |        954 |         80 |          4 |      1,038 |
+| dist\cjs                                                        |          3 |        478 |         40 |          2 |        520 |
+| dist\esm                                                        |          3 |        476 |         40 |          2 |        518 |
+| test                                                            |          1 |        418 |          5 |        126 |        549 |
++-----------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| filename                                                        | language           | code       | comment    | blank      | total      |
++-----------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| c:\Users\tiago\code\vemto-template-engine\dist\cjs\index.d.ts   | TypeScript         |        101 |          3 |          1 |        105 |
+| c:\Users\tiago\code\vemto-template-engine\dist\cjs\index.js     | JavaScript         |        374 |         37 |          1 |        412 |
+| c:\Users\tiago\code\vemto-template-engine\dist\cjs\package.json | JSON               |          3 |          0 |          0 |          3 |
+| c:\Users\tiago\code\vemto-template-engine\dist\esm\index.d.ts   | TypeScript         |        101 |          3 |          1 |        105 |
+| c:\Users\tiago\code\vemto-template-engine\dist\esm\index.js     | JavaScript         |        372 |         37 |          1 |        410 |
+| c:\Users\tiago\code\vemto-template-engine\dist\esm\package.json | JSON               |          3 |          0 |          0 |          3 |
+| c:\Users\tiago\code\vemto-template-engine\fixup.js              | JavaScript         |          5 |          1 |          3 |          9 |
+| c:\Users\tiago\code\vemto-template-engine\index.js              | JavaScript         |        404 |         37 |        148 |        589 |
+| c:\Users\tiago\code\vemto-template-engine\jest.config.js        | JavaScript         |          5 |          0 |          0 |          5 |
+| c:\Users\tiago\code\vemto-template-engine\package-lock.json     | JSON               |     10,578 |          0 |          1 |     10,579 |
+| c:\Users\tiago\code\vemto-template-engine\package.json          | JSON               |         40 |          0 |          1 |         41 |
+| c:\Users\tiago\code\vemto-template-engine\prepare-build.js      | JavaScript         |         15 |          1 |          5 |         21 |
+| c:\Users\tiago\code\vemto-template-engine\readme.md             | Markdown           |         96 |          0 |         56 |        152 |
+| c:\Users\tiago\code\vemto-template-engine\test\template.test.js | JavaScript         |        418 |          5 |        126 |        549 |
+| c:\Users\tiago\code\vemto-template-engine\tsconfig-base.json    | JSON               |         28 |          0 |          0 |         28 |
+| c:\Users\tiago\code\vemto-template-engine\tsconfig-cjs.json     | JSON               |          8 |          0 |          0 |          8 |
+| c:\Users\tiago\code\vemto-template-engine\tsconfig-esm.json     | JSON               |          8 |          0 |          0 |          8 |
+| c:\Users\tiago\code\vemto-template-engine\tsconfig.json         | JSON with Comments |         10 |         11 |          0 |         21 |
+| Total                                                           |                    |     12,569 |        135 |        344 |     13,048 |
++-----------------------------------------------------------------+--------------------+------------+------------+------------+------------+
