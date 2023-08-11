@@ -167,6 +167,17 @@ class Template {
             throw error;
         }
     }
+    compileAsyncWithErrorTreatment() {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.compileAsync();
+            }
+            catch (error) {
+                yield this.setLatestError(error);
+                throw error;
+            }
+        });
+    }
     compile() {
         this.generateCode();
         this.compiled = true;

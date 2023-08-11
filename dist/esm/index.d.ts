@@ -59,6 +59,7 @@ export default class Template {
     actualLineIsLogic: boolean;
     previousLineIsLogic: boolean;
     compileWithErrorTreatment(): any;
+    compileAsyncWithErrorTreatment(): Promise<any>;
     compile(): any;
     compileAsync(): Promise<any>;
     addDataHelpers(): void;

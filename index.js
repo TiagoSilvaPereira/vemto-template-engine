@@ -228,6 +228,16 @@ export default class Template {
         }
     }
 
+    async compileAsyncWithErrorTreatment() {
+        try {
+            return await this.compileAsync();
+        } catch (error) {
+            await this.setLatestError(error);
+
+            throw error;
+        }
+    }
+
     compile() {
         this.generateCode();
 
