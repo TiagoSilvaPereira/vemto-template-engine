@@ -567,7 +567,7 @@ test('it can render a template asynchronouly', async () => {
     expect(result.includes(`Hi, I'm Tiago Rodrigues`)).toBe(true)
 })
 
-test('it can compile asynchronouly with error threatment', async () => {
+test('it can compile asynchronouly with error treatment', async () => {
     let template = `Hi, I'm <$ this.internalData.name $>`;
 
     let compiler = new VET(template),
