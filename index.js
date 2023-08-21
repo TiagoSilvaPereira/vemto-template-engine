@@ -3,6 +3,7 @@
 export class TemplateErrorLogger {
     constructor() {
         this.errors = []
+        this.latestError = null
     }
 
     log(error) {
@@ -13,10 +14,21 @@ export class TemplateErrorLogger {
         newError.error = error.error.toString()
 
         this.errors.push(newError)
+
+        this.latestError = newError
     }
 
     get() {
         return this.errors
+    }
+
+    getLatest() {
+        return this.latestError
+    }
+
+    clear() {
+        this.errors = []
+        this.latestError = null
     }
 
     uniqueId() {

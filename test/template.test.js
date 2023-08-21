@@ -608,5 +608,5 @@ test('it can catch internal template errors', async () => {
     expect(errorMessage).toBe('Cannot read properties of undefined (reading \'name\')')
 
     expect(errorLogger.get().length).toBe(2)
-    expect(errorLogger.get()[0].error).toBe('TypeError: Cannot read properties of undefined (reading \'name\')')
+    expect(errorLogger.getLatest().error).toBe('TypeError: Cannot read properties of undefined (reading \'name\')')
 })

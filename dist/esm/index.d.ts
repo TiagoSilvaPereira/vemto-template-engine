@@ -1,7 +1,10 @@
 export class TemplateErrorLogger {
     errors: any[];
+    latestError: any;
     log(error: any): void;
     get(): any[];
+    getLatest(): any;
+    clear(): void;
     uniqueId(): string;
 }
 export default class Template {

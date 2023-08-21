@@ -13,15 +13,24 @@ exports.TemplateErrorLogger = void 0;
 class TemplateErrorLogger {
     constructor() {
         this.errors = [];
+        this.latestError = null;
     }
     log(error) {
         const newErrorId = this.uniqueId(), newError = JSON.parse(JSON.stringify(error));
         newError.id = newErrorId;
         newError.error = error.error.toString();
         this.errors.push(newError);
+        this.latestError = newError;
     }
     get() {
         return this.errors;
+    }
+    getLatest() {
+        return this.latestError;
+    }
+    clear() {
+        this.errors = [];
+        this.latestError = null;
     }
     uniqueId() {
         return Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
