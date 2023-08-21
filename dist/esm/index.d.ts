@@ -1,7 +1,14 @@
+export class TemplateErrorLogger {
+    errors: any[];
+    log(error: any): void;
+    get(): any[];
+    uniqueId(): string;
+}
 export default class Template {
-    constructor(template: any, options?: {});
+    constructor(template: any, options?: {}, errorLogger?: any);
     latestError: {
         error: any;
+        templateName: any;
         codeLine: number;
         templateLine: number;
     };
@@ -10,6 +17,8 @@ export default class Template {
     options: {};
     imports: any;
     require: any;
+    templateName: any;
+    errorLogger: any;
     indentStep: number;
     indentSteps: {};
     indentBackSpaces: number;
@@ -68,6 +77,7 @@ export default class Template {
     setLatestError(error: any): void;
     getLatestError(): {
         error: any;
+        templateName: any;
         codeLine: number;
         templateLine: number;
     };

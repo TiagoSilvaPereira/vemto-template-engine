@@ -1,4 +1,4 @@
-import VET from "../index.js";
+import VET, { TemplateErrorLogger } from "../index.js";
 
 test('it renders a simple template', () => {
 
@@ -580,4 +580,33 @@ test('it can compile asynchronouly with error treatment', async () => {
     }
 
     expect(throwed).toBe(true)
+})
+
+test('it can catch internal template errors', async () => {
+    const errorLogger = new TemplateErrorLogger();
+
+    let errorMessage = '';
+
+    let data = {
+        name: 'Tiago',
+        asyncFunction: async () => {
+            // throw new Error('Errorzinc')
+            let internalTemplate = `Hi, I'm <$ this.internalData.name $>`;
+            return new VET(internalTemplate, {templateName: 'Child'}, errorLogger).setData({}).compileAsyncWithErrorTreatment();
+        }
+    };
+
+    let template = `Hi, I'm <$ this.name $> <$ await this.asyncFunction() $>`,
+        compiler = new VET(template, {templateName: 'Parent'}, errorLogger);
+    
+    try {
+        await compiler.setData(data).compileAsyncWithErrorTreatment(); 
+    } catch (e) {
+        errorMessage = e.message;
+    }
+
+    expect(errorMessage).toBe('Cannot read properties of undefined (reading \'name\')')
+
+    expect(errorLogger.get().length).toBe(2)
+    expect(errorLogger.get()[0].error).toBe('TypeError: Cannot read properties of undefined (reading \'name\')')
 })

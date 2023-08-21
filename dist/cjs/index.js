@@ -9,14 +9,35 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TemplateErrorLogger = void 0;
+class TemplateErrorLogger {
+    constructor() {
+        this.errors = [];
+    }
+    log(error) {
+        const newErrorId = this.uniqueId(), newError = JSON.parse(JSON.stringify(error));
+        newError.id = newErrorId;
+        newError.error = error.error.toString();
+        this.errors.push(newError);
+    }
+    get() {
+        return this.errors;
+    }
+    uniqueId() {
+        return Math.random().toString(36).substring(2, 9) + Date.now().toString(36);
+    }
+}
+exports.TemplateErrorLogger = TemplateErrorLogger;
 class Template {
-    constructor(template, options = {}) {
+    constructor(template, options = {}, errorLogger = null) {
         this.latestError = null;
         this.compiled = false;
         this.hasGeneratedCode = false;
         this.options = options;
         this.imports = options.imports || {};
         this.require = options.require || {};
+        this.templateName = options.templateName || '(anonymous template)';
+        this.errorLogger = errorLogger || new TemplateErrorLogger();
         this.indentStep = 0;
         this.indentSteps = {};
         this.indentBackSpaces = 0;
@@ -211,10 +232,14 @@ class Template {
     setLatestError(error) {
         let codeLine = this.getErrorLine(error), templateLine = this.getTemplateLineFromCodeLine(codeLine);
         this.latestError = {
-            error,
+            error: error,
+            templateName: this.templateName,
             codeLine: parseInt(codeLine, 10),
             templateLine: parseInt(templateLine, 10)
         };
+        if (this.errorLogger) {
+            this.errorLogger.log(this.latestError);
+        }
     }
     getLatestError() {
         return this.latestError;
@@ -224,12 +249,17 @@ class Template {
         return matches ? matches[0].split(':')[0] : 0;
     }
     getTemplateLineFromCodeLine(codeLine) {
-        if (!codeLine)
+        try {
+            if (!codeLine)
+                return 0;
+            let generatedCode = this.getGeneratedCodeFunctionAsString();
+            let codeLines = generatedCode.split('\n'), code = codeLines[codeLine - 1];
+            let templateLine = code.replace(/(.*)(TEMPLATE_LINE:)/, '');
+            return templateLine || 0;
+        }
+        catch (error) {
             return 0;
-        let generatedCode = this.getGeneratedCodeFunctionAsString();
-        let codeLines = generatedCode.split('\n'), code = codeLines[codeLine - 1];
-        let templateLine = code.replace(/(.*)(TEMPLATE_LINE:)/, '');
-        return templateLine || 0;
+        }
     }
     generateCode() {
         this.resetTemplate();
