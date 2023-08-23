@@ -590,9 +590,8 @@ test('it can catch internal template errors', async () => {
     let data = {
         name: 'Tiago',
         asyncFunction: async () => {
-            // throw new Error('Errorzinc')
             let internalTemplate = `Hi, I'm <$ this.internalData.name $>`;
-            return new VET(internalTemplate, {templateName: 'Child'}, errorLogger).setData({}).compileAsyncWithErrorTreatment();
+            return new VET(internalTemplate, {templateName: 'Child', isChildrenExecution: true}, errorLogger).setData({}).compileAsyncWithErrorTreatment();
         }
     };
 
@@ -609,4 +608,7 @@ test('it can catch internal template errors', async () => {
 
     expect(errorLogger.get().length).toBe(2)
     expect(errorLogger.getLatest().error).toBe('TypeError: Cannot read properties of undefined (reading \'name\')')
+    
+    expect(errorLogger.get()[0].templateName).toBe('Child')
+    expect(errorLogger.get()[1].templateName).toBe('Parent')
 })

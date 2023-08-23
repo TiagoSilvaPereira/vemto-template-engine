@@ -14,6 +14,7 @@ export default class Template {
         templateName: any;
         codeLine: number;
         templateLine: number;
+        isChildrenExecution: any;
     };
     compiled: boolean;
     hasGeneratedCode: boolean;
@@ -21,6 +22,7 @@ export default class Template {
     imports: any;
     require: any;
     templateName: any;
+    isChildrenExecution: any;
     errorLogger: any;
     indentStep: number;
     indentSteps: {};
@@ -83,6 +85,7 @@ export default class Template {
         templateName: any;
         codeLine: number;
         templateLine: number;
+        isChildrenExecution: any;
     };
     getErrorLine(error: any): any;
     getTemplateLineFromCodeLine(codeLine: any): string | 0;

@@ -46,6 +46,7 @@ class Template {
         this.imports = options.imports || {};
         this.require = options.require || {};
         this.templateName = options.templateName || '(anonymous template)';
+        this.isChildrenExecution = options.isChildrenExecution || false;
         this.errorLogger = errorLogger || new TemplateErrorLogger();
         this.indentStep = 0;
         this.indentSteps = {};
@@ -244,7 +245,8 @@ class Template {
             error: error,
             templateName: this.templateName,
             codeLine: parseInt(codeLine, 10),
-            templateLine: parseInt(templateLine, 10)
+            templateLine: parseInt(templateLine, 10),
+            isChildrenExecution: this.isChildrenExecution
         };
         if (this.errorLogger) {
             this.errorLogger.log(this.latestError);
