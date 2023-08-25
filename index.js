@@ -63,7 +63,7 @@ export default class Template {
         this.require = options.require || {}
         this.templateName = options.templateName || '(anonymous template)'
         this.isChildrenExecution = options.isChildrenExecution || false
-        this.errorLogger = errorLogger || new TemplateErrorLogger()
+        this.errorLogger = errorLogger
 
         this.indentStep = 0
         this.indentSteps = {}
