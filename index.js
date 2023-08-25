@@ -4,6 +4,7 @@ export class TemplateErrorLogger {
     constructor() {
         this.errors = []
         this.latestError = null
+        this.identifier = this.uniqueId()
     }
 
     log(error) {
@@ -24,6 +25,10 @@ export class TemplateErrorLogger {
 
     getLatest() {
         return this.latestError
+    }
+
+    getIdentifier() {
+        return this.identifier
     }
 
     clear() {

@@ -3,6 +3,7 @@ export class TemplateErrorLogger {
     constructor() {
         this.errors = [];
         this.latestError = null;
+        this.identifier = this.uniqueId();
     }
     log(error) {
         const newErrorId = this.uniqueId(), newError = JSON.parse(JSON.stringify(error));
@@ -16,6 +17,9 @@ export class TemplateErrorLogger {
     }
     getLatest() {
         return this.latestError;
+    }
+    getIdentifier() {
+        return this.identifier;
     }
     clear() {
         this.errors = [];

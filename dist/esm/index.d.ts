@@ -1,9 +1,11 @@
 export class TemplateErrorLogger {
     errors: any[];
     latestError: any;
+    identifier: string;
     log(error: any): void;
     get(): any[];
     getLatest(): any;
+    getIdentifier(): string;
     clear(): void;
     uniqueId(): string;
 }
