@@ -37,7 +37,7 @@ export class TemplateErrorLogger {
     }
 }
 export default class Template {
-    constructor(template, options = {}, errorLogger = null, onError = null) {
+    constructor(template, options = {}, errorLogger = null) {
         this.latestError = null;
         this.compiled = false;
         this.hasGeneratedCode = false;
@@ -47,7 +47,6 @@ export default class Template {
         this.templateName = options.templateName || '(anonymous template)';
         this.isChildrenExecution = options.isChildrenExecution || false;
         this.errorLogger = errorLogger;
-        this.onError = onError;
         this.indentStep = 0;
         this.indentSteps = {};
         this.indentBackSpaces = 0;
