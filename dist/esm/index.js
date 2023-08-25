@@ -194,9 +194,6 @@ export default class Template {
             return this.compile();
         }
         catch (error) {
-            if (this.onError) {
-                this.onError(error, this);
-            }
             this.setLatestError(error);
             throw error;
         }
@@ -206,9 +203,6 @@ export default class Template {
             return await this.compileAsync();
         }
         catch (error) {
-            if (this.onError) {
-                this.onError(error, this);
-            }
             await this.setLatestError(error);
             throw error;
         }

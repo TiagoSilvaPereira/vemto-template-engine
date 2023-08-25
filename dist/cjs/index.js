@@ -206,9 +206,6 @@ class Template {
             return this.compile();
         }
         catch (error) {
-            if (this.onError) {
-                this.onError(error, this);
-            }
             this.setLatestError(error);
             throw error;
         }
@@ -219,9 +216,6 @@ class Template {
                 return yield this.compileAsync();
             }
             catch (error) {
-                if (this.onError) {
-                    this.onError(error, this);
-                }
                 yield this.setLatestError(error);
                 throw error;
             }
