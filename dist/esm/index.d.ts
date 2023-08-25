@@ -2,6 +2,8 @@ export class TemplateErrorLogger {
     errors: any[];
     latestError: any;
     identifier: string;
+    onLogCallback: any;
+    onLog(callback: any): void;
     log(error: any): void;
     get(): any[];
     getLatest(): any;

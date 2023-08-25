@@ -5,6 +5,11 @@ export class TemplateErrorLogger {
         this.errors = []
         this.latestError = null
         this.identifier = this.uniqueId()
+        this.onLogCallback = null
+    }
+
+    onLog(callback) {
+        this.onLogCallback = callback
     }
 
     log(error) {
@@ -17,6 +22,10 @@ export class TemplateErrorLogger {
         this.errors.push(newError)
 
         this.latestError = newError
+
+        if(this.onLogCallback) {
+            this.onLogCallback(newError)
+        }
     }
 
     get() {
