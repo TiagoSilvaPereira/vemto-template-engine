@@ -37,7 +37,7 @@ export class TemplateErrorLogger {
     }
 }
 export default class Template {
-    constructor(template, options = {}, errorLogger = null) {
+    constructor(template, options = {}, errorLogger = null, onError = null) {
         this.latestError = null;
         this.compiled = false;
         this.hasGeneratedCode = false;
@@ -47,6 +47,7 @@ export default class Template {
         this.templateName = options.templateName || '(anonymous template)';
         this.isChildrenExecution = options.isChildrenExecution || false;
         this.errorLogger = errorLogger;
+        this.onError = onError;
         this.indentStep = 0;
         this.indentSteps = {};
         this.indentBackSpaces = 0;
@@ -193,6 +194,9 @@ export default class Template {
             return this.compile();
         }
         catch (error) {
+            if (this.onError) {
+                this.onError(error, this);
+            }
             this.setLatestError(error);
             throw error;
         }
@@ -202,6 +206,9 @@ export default class Template {
             return await this.compileAsync();
         }
         catch (error) {
+            if (this.onError) {
+                this.onError(error, this);
+            }
             await this.setLatestError(error);
             throw error;
         }

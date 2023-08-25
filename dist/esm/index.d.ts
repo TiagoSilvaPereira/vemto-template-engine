@@ -12,7 +12,7 @@ export class TemplateErrorLogger {
     uniqueId(): string;
 }
 export default class Template {
-    constructor(template: any, options?: {}, errorLogger?: any);
+    constructor(template: any, options?: {}, errorLogger?: any, onError?: any);
     latestError: {
         error: any;
         templateName: any;
@@ -28,6 +28,7 @@ export default class Template {
     templateName: any;
     isChildrenExecution: any;
     errorLogger: any;
+    onError: any;
     indentStep: number;
     indentSteps: {};
     indentBackSpaces: number;
