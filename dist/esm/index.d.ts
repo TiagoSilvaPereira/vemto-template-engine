@@ -123,4 +123,5 @@ export default class Template {
     getStringOcurrenceIndexByOrder(string: any, subString: any, order: any): number;
     finishGeneratedCode(): void;
     codeIsValid(showErrors?: boolean): boolean;
+    setupListeners(): void;
 }

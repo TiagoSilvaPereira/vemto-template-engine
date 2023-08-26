@@ -71,6 +71,7 @@ class Template {
         }
         this.initSettings();
         this.resetTemplate();
+        this.setupListeners();
     }
     setData(data) {
         this.data = data;
@@ -205,6 +206,9 @@ class Template {
             return this.compile();
         }
         catch (error) {
+            if (this.options.onError) {
+                this.options.onError(error, this);
+            }
             this.setLatestError(error);
             throw error;
         }
@@ -215,7 +219,10 @@ class Template {
                 return yield this.compileAsync();
             }
             catch (error) {
-                yield this.setLatestError(error);
+                if (this.options.onError) {
+                    this.options.onError(error, this);
+                }
+                this.setLatestError(error);
                 throw error;
             }
         });
@@ -490,6 +497,11 @@ class Template {
             return false;
         }
         return true;
+    }
+    setupListeners() {
+        if (this.options.onCreate) {
+            this.options.onCreate(this);
+        }
     }
 }
 exports.default = Template;

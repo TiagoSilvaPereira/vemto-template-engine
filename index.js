@@ -81,6 +81,8 @@ export default class Template {
 
         this.initSettings();
         this.resetTemplate();
+        
+        this.setupListeners()
     }
 
     setData(data) {
@@ -275,6 +277,10 @@ export default class Template {
         try {
             return this.compile();
         } catch (error) {
+            if(this.options.onError) {
+                this.options.onError(error, this)
+            }
+
             this.setLatestError(error);
 
             throw error;
@@ -285,7 +291,11 @@ export default class Template {
         try {
             return await this.compileAsync();
         } catch (error) {
-            await this.setLatestError(error);
+            if(this.options.onError) {
+                this.options.onError(error, this)
+            }
+
+            this.setLatestError(error);
 
             throw error;
         }
@@ -670,6 +680,12 @@ export default class Template {
         }
 
         return true;
+    }
+
+    setupListeners() {
+        if(this.options.onCreate) {
+            this.options.onCreate(this)
+        }
     }
 
 }
