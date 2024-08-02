@@ -124,4 +124,5 @@ export default class Template {
     finishGeneratedCode(): void;
     codeIsValid(showErrors?: boolean): boolean;
     setupListeners(): void;
+    getDataDefinition(): {};
 }

@@ -485,4 +485,32 @@ export default class Template {
             this.options.onCreate(this);
         }
     }
+    getDataDefinition() {
+        const data = {};
+        const regex = /<# DATA:(\w+) \[ (\w+) = (.+) \] #>/g;
+        let match = null;
+        while ((match = regex.exec(this.template)) !== null) {
+            const type = match[1];
+            const name = match[2];
+            let value = match[3];
+            if (type === "JSON") {
+                value = JSON.parse(value);
+            }
+            if (type === "STRING") {
+                value = value.replace(/"/g, '');
+            }
+            if (type === "NUMBER") {
+                value = parseFloat(value);
+            }
+            if (type === "BOOLEAN") {
+                value = value === "true";
+            }
+            data[name] = {
+                name,
+                type,
+                value,
+            };
+        }
+        return data;
+    }
 }

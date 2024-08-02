@@ -612,3 +612,41 @@ test('it can catch internal template errors', async () => {
     expect(errorLogger.get()[0].templateName).toBe('Child')
     expect(errorLogger.get()[1].templateName).toBe('Parent')
 })
+
+test('it can read templates data definition for dependency injection', () => {
+    let template = [
+        '<# DATA:JSON [ json = {} ] #>',
+        '<# DATA:MODEL [ project = Project ] #>',
+        '<# DATA:STRING [ text = "Hello World" ] #>',
+        '<# DATA:NUMBER [ number = 10 ] #>',
+        '<# DATA:BOOLEAN [ active = true ] #>',
+        '<# DATA:SOMETHING [ something = "Something" ] #>',
+    ].join('\n')
+
+    
+    let dataDefinition = new VET(template).getDataDefinition()
+
+    expect(dataDefinition['json']['name']).toBe('json')
+    expect(dataDefinition['json']['type']).toBe('JSON')
+    expect(dataDefinition['json']['value']).toStrictEqual({})
+
+    expect(dataDefinition['project']['name']).toBe('project')
+    expect(dataDefinition['project']['type']).toBe('MODEL')
+    expect(dataDefinition['project']['value']).toBe('Project')
+
+    expect(dataDefinition['text']['name']).toBe('text')
+    expect(dataDefinition['text']['type']).toBe('STRING')
+    expect(dataDefinition['text']['value']).toBe('Hello World')
+
+    expect(dataDefinition['number']['name']).toBe('number')
+    expect(dataDefinition['number']['type']).toBe('NUMBER')
+    expect(dataDefinition['number']['value']).toBe(10)
+
+    expect(dataDefinition['active']['name']).toBe('active')
+    expect(dataDefinition['active']['type']).toBe('BOOLEAN')
+    expect(dataDefinition['active']['value']).toBe(true)
+
+    expect(dataDefinition['something']['name']).toBe('something')
+    expect(dataDefinition['something']['type']).toBe('SOMETHING')
+    expect(dataDefinition['something']['value']).toBe('"Something"')
+})
