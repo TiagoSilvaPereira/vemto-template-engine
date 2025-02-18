@@ -1,0 +1,20 @@
+"filename", "language", "JavaScript", "JSON with Comments", "JSON", "Markdown", "TypeScript", "comment", "blank", "total"
+"c:\Users\tiago\code\vemto-template-engine\dist\cjs\index.d.ts", "TypeScript", 0, 0, 0, 0, 125, 3, 1, 129
+"c:\Users\tiago\code\vemto-template-engine\dist\cjs\index.js", "JavaScript", 498, 0, 0, 0, 0, 37, 1, 536
+"c:\Users\tiago\code\vemto-template-engine\dist\cjs\package.json", "JSON", 0, 0, 3, 0, 0, 0, 0, 3
+"c:\Users\tiago\code\vemto-template-engine\dist\esm\index.d.ts", "TypeScript", 0, 0, 0, 0, 125, 3, 1, 129
+"c:\Users\tiago\code\vemto-template-engine\dist\esm\index.js", "JavaScript", 479, 0, 0, 0, 0, 37, 1, 517
+"c:\Users\tiago\code\vemto-template-engine\dist\esm\package.json", "JSON", 0, 0, 3, 0, 0, 0, 0, 3
+"c:\Users\tiago\code\vemto-template-engine\fixup.js", "JavaScript", 5, 0, 0, 0, 0, 1, 3, 9
+"c:\Users\tiago\code\vemto-template-engine\index.js", "JavaScript", 510, 0, 0, 0, 0, 37, 183, 730
+"c:\Users\tiago\code\vemto-template-engine\jest.config.js", "JavaScript", 5, 0, 0, 0, 0, 0, 0, 5
+"c:\Users\tiago\code\vemto-template-engine\package-lock.json", "JSON", 0, 0, 10578, 0, 0, 0, 1, 10579
+"c:\Users\tiago\code\vemto-template-engine\package.json", "JSON", 0, 0, 40, 0, 0, 0, 1, 41
+"c:\Users\tiago\code\vemto-template-engine\prepare-build.js", "JavaScript", 15, 0, 0, 0, 0, 1, 5, 21
+"c:\Users\tiago\code\vemto-template-engine\readme.md", "Markdown", 0, 0, 0, 96, 0, 0, 56, 152
+"c:\Users\tiago\code\vemto-template-engine\test\template.test.js", "JavaScript", 496, 0, 0, 0, 0, 5, 151, 652
+"c:\Users\tiago\code\vemto-template-engine\tsconfig-base.json", "JSON", 0, 0, 28, 0, 0, 0, 0, 28
+"c:\Users\tiago\code\vemto-template-engine\tsconfig-cjs.json", "JSON", 0, 0, 8, 0, 0, 0, 0, 8
+"c:\Users\tiago\code\vemto-template-engine\tsconfig-esm.json", "JSON", 0, 0, 8, 0, 0, 0, 0, 8
+"c:\Users\tiago\code\vemto-template-engine\tsconfig.json", "JSON with Comments", 0, 10, 0, 0, 0, 11, 0, 21
+"Total", "-", 2008, 10, 10668, 96, 250, 135, 404, 13571

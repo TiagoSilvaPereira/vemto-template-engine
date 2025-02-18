@@ -1,0 +1,8 @@
+"filename", "language", "JavaScript", "TypeScript", "comment", "blank", "total"
+"c:\Users\tiago\code\vemto-template-engine\dist\cjs\index.d.ts", "TypeScript", 0, 24, 0, 0, 24
+"c:\Users\tiago\code\vemto-template-engine\dist\cjs\index.js", "JavaScript", 124, 0, 0, 0, 124
+"c:\Users\tiago\code\vemto-template-engine\dist\esm\index.d.ts", "TypeScript", 0, 24, 0, 0, 24
+"c:\Users\tiago\code\vemto-template-engine\dist\esm\index.js", "JavaScript", 107, 0, 0, 0, 107
+"c:\Users\tiago\code\vemto-template-engine\index.js", "JavaScript", 106, 0, 0, 35, 141
+"c:\Users\tiago\code\vemto-template-engine\test\template.test.js", "JavaScript", 78, 0, 0, 25, 103
+"Total", "-", 415, 48, 0, 60, 523

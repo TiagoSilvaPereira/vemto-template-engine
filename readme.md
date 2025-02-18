@@ -1,23 +1,25 @@
-# SilverB
+# Vemto Template Engine
 
 ## Introduction
 
-SilverB is a template engine, but made for code and text generation and to be used with [PWC Code Generator](https://github.com/pwc-code-generator/pwc). In the past, I tested some template engines with PWC, like Handlebars, Dot and others. But these template engines are made for another purpose (HTML templates) and, because of it, I decided to make my own template engine.
+Vemto Template Engine (VTE, former SilverB) is a template engine for code and text generation. It was initially created to be used with [PWC Code Generator](https://github.com/pwc-code-generator/pwc). In the past, I tested some template engines with PWC, like Handlebars, Dot, and others. However, these engines are made for another purpose (HTML templates), and because of this, I decided to make my own.
 
-SilverB can be used for any dynamic text generation and accepts all Javascript syntaxes inside your special tags.
+VTE can be used for any dynamic text generation and accepts all Javascript syntaxes inside its special tags.
 
 ## Installation
 
-To use SilverB in your own project, install it using npm:
+To use VTE in your project, install it using npm or yarn:
 
 ```
-npm install silverb --save
+npm install @tiago_silva_pereira/vemto-template-engine --save
 ```
-
-And import it on your script:
+Then you can import it on your code:
 
 ```Javascript
-const SilverB = require('silverb');
+const TemplateEngine = require('@tiago_silva_pereira/vemto-template-engine');
+
+// Or as a module
+import TemplateEngine, { TemplateErrorLogger } from "@tiago_silva_pereira/vemto-template-engine"
 
 ```
 
@@ -31,7 +33,7 @@ Let's consider we have this data:
 var data = {
     name: 'Tiago Silva Pereira Rodrigues',
     projects: [
-        'PWC', 'SilverB', 'Rapid Mockup', 'Stop It'
+        'PWC', 'Vemto Template Engine', 'Rapid Mockup', 'Stop It', 'Vemto', 'Vote Hub', 'Reading Light'
     ]
 }
 ```
@@ -39,7 +41,7 @@ var data = {
 And we have this text template:
 
 ```Javascript
-var template = `
+var templateContent = `
 Hi, I'm <$ this.name $>.
 
 I created these projects:
@@ -56,10 +58,10 @@ As you can see, we can attach the *data object* to the template scope and can ac
 Then we can compile the template:
 
 ```Javascript
-const SilverB = require('silverb');
-
 // The data object can be passed to the template on the compile method
-var result = new SilverB(template).compile(data); 
+var result = new TemplateEngine(templateContent)
+    .setData(data)
+    .compile()
 
 ```
 
@@ -71,7 +73,7 @@ Hi, I'm Tiago Silva Pereira Rodrigues.
 I created these projects:
 
     - PWC
-    - SilverB
+    - Vemto Template Engine
     - Rapid Mockup
     - Stop It
 ```
@@ -80,14 +82,11 @@ See this example running [here](https://runkit.com/embed/rg5rwen7nmdt).
 
 ## Tags
 
-At this moment, SilverB has four different tags that can be used. All the text outside these tags will be generated without modifications, keeping the indentation and break lines.
-
-The tags are:
-
 - ```<# #>``` - Used for line comments
 - ```<$ $>``` - Used to show variables or expression values. Commands inside these tags will be executed and transformed into text
 - ```<up up>``` - It is like <$ $>, but will put the result on the previous line (only if the tags are at the start of a new line)
 - ```<% %>``` - Used for javascript logic blocks like **if**, **for**, etc. Commands inside these tags will not be transformed to text. Accepts all javascript syntax.
+- ```<import template="">``` - Used to import other templates
 
 Examples:
 
@@ -125,7 +124,7 @@ var data = true;
 
 Helpers are methods on the template scope that you can call conditionally to make specific text operations. The currently available helpers are:
 
-**removeLastBreakLine** - It will remove the last break line on the text. Eg:
+**removeLastLineBreak** - It will remove the last line break on the text. Eg:
 
 ```
 
@@ -138,15 +137,15 @@ var data = true;
 Something here...
 
 <% if(this.data == true) { %>
-    <% this.removeLastBreakLine(); %> <# Will remove the break line after "Something here..." #>
+    <% this.removeLastBreakLine(); %> <# Will remove the line break after "Something here..." #>
 <% } %>
 ```
 
 ## Syntax Highlighter
 
-We have a simple SilverB Syntax Highlighter for VSCode [here](https://github.com/TiagoSilvaPereira/silverb_syntax_vscode). If you want, you can create a syntax highlighter for your preferred editor and add on this Readme.
+We have a simple Syntax Highlighter for VSCode [here](https://github.com/TiagoSilvaPereira/vemto-template-engine-syntax-vscode). If you want, you can create a syntax highlighter for your preferred editor and add to this Readme.
 
-The syntax highlighter will work on files with **.silverb** extension.
+The syntax highlighter will work on files with **.vemtl** extension.
 
 ## License
 MIT
