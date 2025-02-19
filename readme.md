@@ -141,6 +141,18 @@ Something here...
 <% } %>
 ```
 
+## Template Data
+
+```
+<####>
+<# TEMPLATE DATA #>
+<# DATA:MODEL [ project = Project ] #>
+<# DATA:MODEL [ column = Column ] #>
+<# DATA:EXPOSE_LOCAL [ exposed_variables = column ] #>
+<# DATA:RENDERABLE [ renderable = CustomRenderable() ] #>
+<####>
+```
+
 ## Syntax Highlighter
 
 We have a simple Syntax Highlighter for VSCode [here](https://github.com/TiagoSilvaPereira/vemto-template-engine-syntax-vscode). If you want, you can create a syntax highlighter for your preferred editor and add to this Readme.
