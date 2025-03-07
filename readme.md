@@ -13,7 +13,7 @@ To use VTE in your project, install it using npm or yarn:
 ```
 npm install @tiago_silva_pereira/vemto-template-engine --save
 ```
-Then you can import it on your code:
+Then you can import it in your code:
 
 ```Javascript
 const TemplateEngine = require('@tiago_silva_pereira/vemto-template-engine');
@@ -120,44 +120,210 @@ var data = true;
 
 ```
 
-## Helpers
+## Template Imports
 
-Helpers are methods on the template scope that you can call conditionally to make specific text operations. The currently available helpers are:
-
-**removeLastLineBreak** - It will remove the last line break on the text. Eg:
+VTE supports importing other templates, which helps with modularity and reusability. Templates can be imported using the `<import>` tag:
 
 ```
+<import template="TemplateName.vemtl">
+```
 
-var data = true;
+To use template imports, you must provide the templates when instantiating the TemplateEngine:
 
-...
+```Javascript
+let mainTemplate = `
+Hi, I'm <$ this.name $>.
 
-<# Template #>
+My projects:
+<import template="ProjectsList.vemtl">
 
-Something here...
+<import template="Greetings.vemtl">
+`;
 
-<% if(this.data == true) { %>
-    <% this.removeLastBreakLine(); %> <# Will remove the line break after "Something here..." #>
+let projectsListTemplate = `
+<% for (let project of this.projects) { %>
+    - <$ project $>
+<% } %>
+`;
+
+let greetingsTemplate = `<$ this.greetings $>`;
+
+let result = new TemplateEngine(mainTemplate, {
+    imports: {
+        'ProjectsList.vemtl': projectsListTemplate,
+        'Greetings.vemtl': greetingsTemplate,
+    }
+}).setData({
+    name: 'Tiago',
+    projects: ['VTE', 'PWC'],
+    greetings: 'Happy Coding!'
+}).compile();
+```
+
+### Template Parameters
+
+You can pass parameters to imported templates:
+
+```
+<import template="TemplateName.vemtl" param1="'value'" param2="true" param3="42">
+```
+
+Inside the imported template, you can access these parameters via `this.templateParams`:
+
+```
+<% if(this.templateParams.showMessage) { %>
+    <$ this.templateParams.message $>
 <% } %>
 ```
 
-## Template Data
+## Indentation Control
+
+VTE can automatically handle indentation in generated code, which is especially useful for languages where indentation is important:
+
+### Removing Indentation
+
+You can use the `indent-back` directive to control indentation:
 
 ```
-<####>
-<# TEMPLATE DATA #>
+<* indent-back *>
+<html>
+    <body>
+        <% if(true) { %>
+            <div>Content</div>
+        <% } %>
+    </body>
+</html>
+<* end:indent-back *>
+```
+
+This feature will adjust indentation based on code blocks, making the generated code cleaner and properly indented.
+
+## Helpers
+
+Helpers are methods on the template scope that you can call conditionally to make specific text operations:
+
+### removeLastLineBreak
+
+Removes the last line break in the generated text:
+
+```
+Something here...
+
+<% if(this.condition) { %>
+    <% this.removeLastLineBreak(); %> <# Will remove the line break after "Something here..." #>
+<% } %>
+```
+
+## Error Handling
+
+VTE provides robust error handling to help debug templates:
+
+```Javascript
+let compiler = new TemplateEngine(template);
+
+try {
+    compiler.setData(data).compileWithErrorTreatment();
+} catch (e) {
+    console.error(e);
+    
+    // Get the error details
+    let latestError = compiler.getLatestError();
+    console.log(`Error at template line: ${latestError.templateLine}`);
+}
+```
+
+### TemplateErrorLogger
+
+For more complex scenarios with nested templates, you can use the `TemplateErrorLogger`:
+
+```Javascript
+import TemplateEngine, { TemplateErrorLogger } from "@tiago_silva_pereira/vemto-template-engine";
+
+const errorLogger = new TemplateErrorLogger();
+
+// Pass the error logger to the template engine
+const compiler = new TemplateEngine(template, {templateName: 'MainTemplate'}, errorLogger);
+
+try {
+    await compiler.setData(data).compileAsyncWithErrorTreatment();
+} catch (e) {
+    // Access all collected errors
+    const errors = errorLogger.get();
+    const lastError = errorLogger.getLatest();
+    
+    console.log(`Error in template ${lastError.templateName}: ${lastError.error}`);
+}
+```
+
+## Async Template Compilation
+
+VTE supports asynchronous template compilation, allowing you to use async/await in your templates:
+
+```Javascript
+let data = {
+    name: 'Tiago',
+    asyncFunction: async () => {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve('Rodrigues');
+            }, 100);
+        });
+    }
+};
+
+let template = `Hi, I'm <$ this.name $> <$ await this.asyncFunction() $>`;
+
+// Compile asynchronously
+let result = await new TemplateEngine(template).setData(data).compileAsync();
+// Result: "Hi, I'm Tiago Rodrigues"
+```
+
+## External Modules
+
+You can provide modules to be used in your templates:
+
+```Javascript
+let template = `
+<% const changeCase = this.require('changeCase') %>
+Hi <$ changeCase('tiago') $>!
+`;
+
+// Provide the module implementation
+const changeCase = (str) => str.toUpperCase();
+
+let result = new TemplateEngine(template, {
+    require: {
+        'changeCase': changeCase,
+    }
+}).setData({}).compile();
+
+// Result: "Hi TIAGO!"
+```
+
+## Template Data Definition
+
+Templates can define their data requirements using special comments:
+
+```
+<# DATA:JSON [ json = {} ] #>
 <# DATA:MODEL [ project = Project ] #>
-<# DATA:MODEL [ column = Column ] #>
-<# DATA:EXPOSE_LOCAL [ exposed_variables = column ] #>
-<# DATA:RENDERABLE [ renderable = CustomRenderable() ] #>
-<####>
+<# DATA:STRING [ text = "Hello World" ] #>
+<# DATA:NUMBER [ number = 10 ] #>
+<# DATA:BOOLEAN [ active = true ] #>
+```
+
+You can extract this data definition:
+
+```Javascript
+let dataDefinition = new TemplateEngine(template).getDataDefinition();
+// Returns an object with the data definitions
 ```
 
 ## Syntax Highlighter
 
-We have a simple Syntax Highlighter for VSCode [here](https://github.com/TiagoSilvaPereira/vemto-template-engine-syntax-vscode). If you want, you can create a syntax highlighter for your preferred editor and add to this Readme.
+We have a simple Syntax Highlighter for VSCode [here](https://github.com/TiagoSilvaPereira/vemto-template-engine-syntax-vscode). If you want, you can create a syntax highlighter for your preferred editor and add it to this Readme.
 
-The syntax highlighter will work on files with **.vemtl** extension.
+The syntax highlighter works on files with the **.vemtl** extension.
 
 ## License
 MIT
