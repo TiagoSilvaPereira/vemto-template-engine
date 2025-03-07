@@ -196,7 +196,25 @@ You can use the `indent-back` directive to control indentation:
 <* end:indent-back *>
 ```
 
-This feature will adjust indentation based on code blocks, making the generated code cleaner and properly indented.
+This feature will adjust indentation based on code blocks, making the generated code cleaner and properly indented. The result would be:
+
+```html
+<html>
+    <body>
+        <div>Content</div>
+    </body>
+</html>
+```
+
+Instead of:
+
+```html
+<html>
+    <body>
+            <div>Content</div>
+    </body>
+</html>
+```
 
 ## Helpers
 
@@ -305,11 +323,13 @@ let result = new TemplateEngine(template, {
 Templates can define their data requirements using special comments:
 
 ```
-<# DATA:JSON [ json = {} ] #>
+<# DATA:JSON [ json = {"name": "John"} ] #>
 <# DATA:MODEL [ project = Project ] #>
 <# DATA:STRING [ text = "Hello World" ] #>
 <# DATA:NUMBER [ number = 10 ] #>
 <# DATA:BOOLEAN [ active = true ] #>
+<# DATA:CUSTOM [ something = abc ] #>
+<# DATA:OTHER_TYPE [ other = def ] #>
 ```
 
 You can extract this data definition:
@@ -317,6 +337,48 @@ You can extract this data definition:
 ```Javascript
 let dataDefinition = new TemplateEngine(template).getDataDefinition();
 // Returns an object with the data definitions
+```
+
+The returned object would look like:
+
+```Javascript
+{
+  "json": {
+    "name": "json",
+    "type": "JSON",
+    "value": {"name": "John"}
+  },
+  "project": {
+    "name": "project",
+    "type": "MODEL",
+    "value": "Project"
+  },
+  "text": {
+    "name": "text",
+    "type": "STRING",
+    "value": "Hello World"
+  },
+  "number": {
+    "name": "number",
+    "type": "NUMBER",
+    "value": 10
+  },
+  "active": {
+    "name": "active",
+    "type": "BOOLEAN",
+    "value": true
+  },
+  "something": {
+    "name": "something",
+    "type": "CUSTOM",
+    "value": "abc"
+  },
+  "other": {
+    "name": "other",
+    "type": "OTHER_TYPE",
+    "value": "def"
+  }
+}
 ```
 
 ## Syntax Highlighter
