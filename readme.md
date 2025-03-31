@@ -6,7 +6,7 @@ Vemto Template Engine (VTE, former SilverB) is a template engine for code and te
 
 VTE can be used for any dynamic text generation and accepts all Javascript syntaxes inside its special tags.
 
-> Disclaimer: This project was created in 2018 and has had few changes. The code style is a bit dated, but the engine works very well and rarely needs any updates.
+> **Disclaimer:** This project was created in 2018 and has had few changes. The code style is a bit dated, but the engine works very well and rarely needs any updates.
 
 ## Installation
 
